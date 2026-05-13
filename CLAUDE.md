@@ -4,6 +4,61 @@ HTML-native video workspace built on [Hyperframes](https://hyperframes.heygen.co
 
 **This workspace hosts multiple video projects, one folder each, all under `video-projects/`.** The workspace root holds shared tooling (`node_modules/`, `package.json`, `.claude/`, this `CLAUDE.md`, `DESIGN.ais-example.md`, `MOTION_PHILOSOPHY.md`) — never put `index.html`, `assets/`, `compositions/`, or `renders/` directly at the root. Always work from inside a project subfolder.
 
+---
+
+## VIDEO EDITING PIPELINE — START HERE
+
+This workspace is also a full video editing studio. The pipeline goes:
+
+```
+Raw video → [video-use] filler removal + cut → [HyperFrames] motion graphics → final.mp4
+```
+
+**Quick start:**
+```bash
+bash scripts/setup-studio.sh     # one-time install
+cd /path/to/your/raw/videos
+claude                            # start a session
+# first message: "edit these — remove filler words and let's add motion graphics"
+```
+
+**Read `PIPELINE.md` for the full step-by-step workflow.**
+
+### The two tools
+
+**`video-use`** (installed at `~/Developer/video-use`, symlinked as a skill):
+- Transcribes with ElevenLabs Scribe — word-level timestamps, speaker diarization
+- Reads transcripts as text; never dumps frames blindly
+- Proposes cut strategy → you confirm → executes
+- Removes `umm`, `uh`, false starts, dead pauses; cuts snap to word boundaries
+- Applies color grade per-segment, burns subtitles last
+- Outputs `edit/final.mp4` next to your footage
+
+**HyperFrames** (this repo):
+- HTML/CSS/GSAP motion graphics compositions
+- 38 registry blocks: kinetic type, shader transitions, social overlays, data viz
+- Renders as MP4 or WebM overlays, composited by `video-use`'s `render.py`
+- Aesthetic standard: `MOTION_PHILOSOPHY.md` (read before every creative session)
+
+### Motion graphics handoff point
+
+When `video-use` has the cut approved, motion graphics are built here:
+```
+edit/animations/slot_N/        ← HyperFrames project lives here
+    index.html                 ← composition
+    renders/render.mp4         ← overlay (referenced in edl.json)
+```
+
+All slots are spawned in parallel. Claude runs `npx hyperframes lint` + `npx hyperframes render` per slot, then `render.py` composites them.
+
+### Dependencies required
+- ElevenLabs API key (free tier) — for transcription
+- `ffmpeg` on PATH
+- Python 3.10+ with `uv` or `pip`
+- Node.js 22+ for HyperFrames
+
+---
+
 ## MOTION_PHILOSOPHY.md — READ BEFORE BRAINSTORMING
 
 **`MOTION_PHILOSOPHY.md` (at the workspace root) is the canonical motion-graphics aesthetic for this workspace.** It is the deconstructed playbook of the Infinite Global Payments 30s spot — the gold standard Nate has chosen for every motion build going forward.
@@ -32,6 +87,7 @@ If `MOTION_PHILOSOPHY.md` is missing from the workspace root, stop and ask Nate 
 
 | Skill                    | Command                    | When to use                                                                               |
 | ------------------------ | -------------------------- | ----------------------------------------------------------------------------------------- |
+| `video-use`              | (auto-loaded as skill)     | Full editing pipeline: transcribe → cut fillers → grade → render                         |
 | `hyperframes`            | `/hyperframes`             | Authoring/editing compositions, captions, TTS, audio-reactive animation, transitions      |
 | `hyperframes-cli`        | `/hyperframes-cli`         | CLI commands: `init`, `add`, `lint`, `preview`, `render`, `transcribe`, `tts`, `doctor`   |
 | `gsap`                   | `/gsap`                    | GSAP animation — timelines, easing, stagger, ScrollTrigger, plugins, performance          |
@@ -79,8 +135,10 @@ npx hyperframes docs <topic>                     # inline docs: data-attributes,
 ```
 Hyperframes Editor/
 ├── CLAUDE.md, AGENTS.md, DESIGN.ais-example.md         ← workspace docs
+├── PIPELINE.md                                          ← full video editing pipeline guide
 ├── MOTION_PHILOSOPHY.md                    ← gold-standard motion-graphics aesthetic (READ before brainstorming)
 ├── package.json, node_modules/              ← workspace tooling
+├── scripts/setup-studio.sh                  ← one-command studio installer
 ├── .claude/                                  ← skills + plugin config
 ├── assets/                                   ← shared assets (AIS brand, music)
 └── video-projects/                           ← one folder per video
@@ -122,10 +180,12 @@ The CLI reads `hyperframes.json`/`meta.json` from the current directory and reso
 
 ### What lives at the workspace root
 
+- **Pipeline guide:** `PIPELINE.md` (full raw-video → final.mp4 workflow — read when starting a video editing session)
 - **Motion-graphics philosophy:** `MOTION_PHILOSOPHY.md` (gold-standard aesthetic, deconstructed Infinite Payments spot — read before brainstorming any composition)
 - Shared brand source-of-truth: `DESIGN.ais-example.md` (AIS brand spec — kept as a worked example; students should write their own `DESIGN.md` for their brand), root `assets/` (AIS Logo PNG, brand-tokens.css, AIS Background.png) — copy into a project's `assets/` when needed
 - Shared raw-recording stash: large source MP4s/MP3s that aren't yet assigned to a project (e.g. raw lesson recordings, license-free music) can sit at root until they're moved into a project's `assets/`
 - Tooling: `node_modules/`, `package.json`, `.claude/`, `.gitignore`, `skills-lock.json`
+- Setup: `scripts/setup-studio.sh` — run once to install video-use, ffmpeg, ElevenLabs key, and skill symlinks
 
 ## Render Contract (the must-dos and must-not-dos)
 
