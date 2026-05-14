@@ -1,0 +1,655 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1920, height=1080" />
+  <script src="node_modules/gsap/dist/gsap.min.js"></script>
+  <style>
+    /* ── Reset ─────────────────────────────────────── */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      width: 1920px; height: 1080px;
+      overflow: hidden; background: #000;
+    }
+
+    /* ── PALETTE
+       Deep glass:    rgba(8, 18, 50, 0.62)
+       Glass border:  rgba(255,255,255,0.18)
+       Highlight:     inset 0 1px 0 rgba(255,255,255,0.28)
+       iOS Blue:      #4A9EFF
+       White:         #F0F8FF
+       Muted white:   rgba(240,248,255,0.65)
+    ───────────────────────────────────────────────── */
+
+    /* ── Glass primitives ─────────────────────────── */
+    .glass {
+      background: rgba(4, 8, 22, 0.86);
+      backdrop-filter: blur(28px) saturate(160%);
+      -webkit-backdrop-filter: blur(28px) saturate(160%);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 20px;
+      box-shadow:
+        0 16px 48px rgba(0, 0, 0, 0.55),
+        inset 0 1px 0 rgba(255, 255, 255, 0.28),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.12);
+    }
+
+    .glass-pill {
+      background: rgba(4, 8, 22, 0.80);
+      backdrop-filter: blur(20px) saturate(150%);
+      -webkit-backdrop-filter: blur(20px) saturate(150%);
+      border: 1px solid rgba(255, 255, 255, 0.20);
+      border-radius: 100px;
+      box-shadow:
+        0 8px 24px rgba(0, 0, 0, 0.48),
+        inset 0 1px 0 rgba(255, 255, 255, 0.26);
+    }
+
+    .glass-blue {
+      background: rgba(8, 24, 72, 0.86);
+      backdrop-filter: blur(24px) saturate(170%);
+      -webkit-backdrop-filter: blur(24px) saturate(170%);
+      border: 1px solid rgba(74, 158, 255, 0.40);
+      border-radius: 100px;
+      box-shadow:
+        0 8px 28px rgba(0, 0, 0, 0.52),
+        inset 0 1px 0 rgba(255, 255, 255, 0.18),
+        0 0 24px rgba(74, 158, 255, 0.14);
+    }
+
+    /* ── Step badge ───────────────────────────────── */
+    .step-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 24px;
+    }
+
+    .step-num {
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      color: #8EC8FF;
+    }
+
+    .step-divider {
+      width: 1px; height: 14px;
+      background: rgba(142, 200, 255, 0.45);
+    }
+
+    .step-title {
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.20em;
+      text-transform: uppercase;
+      color: rgba(240, 248, 255, 0.92);
+    }
+
+    /* ── Info card ────────────────────────────────── */
+    .info-card {
+      padding: 26px 32px;
+    }
+
+    .card-eyebrow {
+      font-family: "Figtree", sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: #8EC8FF;
+      margin-bottom: 8px;
+    }
+
+    .card-headline {
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: 50px;
+      font-weight: 800;
+      color: #F0F8FF;
+      line-height: 1.08;
+      letter-spacing: 0.01em;
+    }
+
+    .card-sub {
+      font-family: "Figtree", sans-serif;
+      font-size: 20px;
+      font-weight: 500;
+      color: rgba(240, 248, 255, 0.88);
+      margin-top: 8px;
+      line-height: 1.4;
+    }
+
+    /* ── Checklist chip ───────────────────────────── */
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding: 9px 20px 9px 14px;
+    }
+
+    .chip-icon {
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      background: rgba(74, 158, 255, 0.28);
+      border: 1.5px solid rgba(74, 158, 255, 0.70);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      font-size: 11px;
+      color: #D0E8FF;
+      font-family: "Figtree", sans-serif;
+      font-weight: 700;
+    }
+
+    .chip-label {
+      font-family: "Figtree", sans-serif;
+      font-size: 19px;
+      font-weight: 600;
+      color: #F0F8FF;
+      line-height: 1;
+    }
+
+    /* ── Tagline ──────────────────────────────────── */
+    .tagline-panel {
+      padding: 44px 64px;
+      text-align: center;
+    }
+
+    .tagline-line {
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: 80px;
+      font-weight: 800;
+      color: #F0F8FF;
+      line-height: 1.05;
+      letter-spacing: 0.02em;
+      display: block;
+    }
+
+    .tagline-accent {
+      color: #4A9EFF;
+    }
+
+    /* ── Company badge ────────────────────────────── */
+    .co-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 22px;
+    }
+
+    .co-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: #4A9EFF;
+      box-shadow: 0 0 8px rgba(74, 158, 255, 0.80);
+      flex-shrink: 0;
+    }
+
+    .co-name {
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: rgba(240, 248, 255, 0.92);
+    }
+
+    /* ── Trust VA badges ──────────────────────────── */
+    .va-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 24px;
+    }
+
+    .va-check {
+      width: 24px; height: 24px;
+      border-radius: 50%;
+      background: rgba(74, 158, 255, 0.30);
+      border: 1.5px solid rgba(74, 158, 255, 0.72);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px;
+      color: #D0E8FF;
+      font-family: "Figtree", sans-serif;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .va-name {
+      font-family: "Figtree", sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: #F0F8FF;
+    }
+
+    /* ── CTA panel ────────────────────────────────── */
+    .cta-panel {
+      padding: 42px 52px;
+    }
+
+    .cta-eyebrow {
+      font-family: "Figtree", sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      color: #8EC8FF;
+      margin-bottom: 10px;
+    }
+
+    .cta-heading {
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: 42px;
+      font-weight: 800;
+      color: #F0F8FF;
+      letter-spacing: 0.02em;
+      margin-bottom: 16px;
+    }
+
+    .cta-phone {
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: 72px;
+      font-weight: 800;
+      color: #4A9EFF;
+      letter-spacing: 0.08em;
+      line-height: 1.0;
+      font-variant-numeric: tabular-nums;
+      text-shadow: 0 0 40px rgba(74, 158, 255, 0.35);
+      margin-bottom: 14px;
+    }
+
+    .cta-divider {
+      width: 48px; height: 2px;
+      background: rgba(74, 158, 255, 0.45);
+      margin-bottom: 14px;
+      border-radius: 2px;
+    }
+
+    .cta-web {
+      font-family: "Figtree", sans-serif;
+      font-size: 18px;
+      font-weight: 500;
+      color: rgba(240, 248, 255, 0.82);
+      letter-spacing: 0.04em;
+    }
+
+    /* ── Captions ─────────────────────────────────── */
+    .caption-group {
+      position: absolute;
+      left: 0; right: 0;
+      bottom: 54px;
+      text-align: center;
+      opacity: 0;
+      visibility: hidden;
+    }
+
+    .caption-text {
+      display: inline-block;
+      font-family: "Figtree", sans-serif;
+      font-size: 44px;
+      font-weight: 600;
+      color: #FFFFFF;
+      line-height: 1.25;
+      max-width: 1560px;
+      padding: 10px 30px;
+      background: rgba(0, 0, 0, 0.42);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-radius: 10px;
+      text-shadow: 0 2px 14px rgba(0, 0, 0, 0.75);
+    }
+  </style>
+</head>
+<body>
+
+<div id="root"
+     data-composition-id="elite-care-va-motion"
+     data-width="1920" data-height="1080"
+     data-start="0" data-duration="61.5">
+
+  <!-- ── VIDEO ─────────────────────────────────── -->
+  <video id="el-v"
+    class="clip"
+    data-start="0" data-duration="61.5" data-track-index="0"
+    src="assets/final.mp4"
+    muted playsinline
+    style="position:absolute;top:0;left:0;width:1920px;height:1080px;object-fit:cover;">
+  </video>
+  <audio id="el-a"
+    class="clip"
+    data-start="0" data-duration="61.5" data-track-index="1"
+    src="assets/final.mp4"
+    data-volume="1">
+  </audio>
+
+  <!-- ── COMPANY BADGE (persistent, top-left) ──── -->
+  <div id="brand-wrap" class="clip"
+       data-start="0" data-duration="61.5" data-track-index="2"
+       style="position:absolute;top:38px;left:48px;">
+    <div id="brand-badge" class="co-badge glass-pill">
+      <div class="co-dot"></div>
+      <span class="co-name">Elite Care Health Services</span>
+    </div>
+  </div>
+
+  <!-- ── HOOK (track 3 · 0–6.66s) ─────────────── -->
+  <!-- No heavy card — let the footage open cleanly -->
+  <div id="hook-wrap" class="clip"
+       data-start="0" data-duration="6.66" data-track-index="3"
+       style="position:absolute;top:0;left:0;width:1920px;height:1080px;pointer-events:none;">
+  </div>
+
+  <!-- ── STEP 1 (track 3 · 6.66–19.92s) ────────── -->
+  <div id="step1-wrap" class="clip"
+       data-start="6.66" data-duration="13.26" data-track-index="3"
+       style="position:absolute;top:0;left:0;width:1920px;height:1080px;pointer-events:none;">
+
+    <div id="s1-badge" class="step-badge glass-blue"
+         style="position:absolute;left:50px;top:630px;">
+      <span class="step-num">Step 01</span>
+      <div class="step-divider"></div>
+      <span class="step-title">Benefits Check</span>
+    </div>
+
+    <div id="s1-card" class="glass info-card"
+         style="position:absolute;left:50px;top:697px;width:580px;">
+      <div class="card-eyebrow">Free Consultation</div>
+      <div class="card-headline">VA Benefits Check</div>
+      <div class="card-sub">~10 minutes &nbsp;·&nbsp; No commitment</div>
+    </div>
+
+    <div id="s1-phone" class="glass-pill"
+         style="position:absolute;left:50px;top:842px;padding:14px 28px;display:inline-flex;align-items:center;gap:16px;">
+      <span style="font-family:'Figtree',sans-serif;font-size:16px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:rgba(240,248,255,0.90);">Call Now</span>
+      <span style="font-family:'Barlow Condensed',sans-serif;font-size:40px;font-weight:800;color:#4A9EFF;letter-spacing:0.06em;font-variant-numeric:tabular-nums;">470-802-8834</span>
+    </div>
+
+  </div>
+
+  <!-- ── STEP 2 (track 3 · 19.92–31.67s) ────────── -->
+  <div id="step2-wrap" class="clip"
+       data-start="19.92" data-duration="11.75" data-track-index="3"
+       style="position:absolute;top:0;left:0;width:1920px;height:1080px;pointer-events:none;">
+
+    <div id="s2-badge" class="step-badge glass-blue"
+         style="position:absolute;left:50px;top:590px;">
+      <span class="step-num">Step 02</span>
+      <div class="step-divider"></div>
+      <span class="step-title">Paperwork Handled</span>
+    </div>
+
+    <div id="s2-card" class="glass info-card"
+         style="position:absolute;left:50px;top:657px;width:580px;">
+      <div class="card-eyebrow">We Handle Everything</div>
+      <div class="card-headline">Zero Forms for You</div>
+    </div>
+
+    <div id="s2-chips"
+         style="position:absolute;left:50px;top:788px;display:flex;flex-direction:column;gap:9px;">
+      <div id="s2-c1" class="chip glass-pill">
+        <span class="chip-icon">✓</span>
+        <span class="chip-label">No forms to fill out</span>
+      </div>
+      <div id="s2-c2" class="chip glass-pill">
+        <span class="chip-icon">✓</span>
+        <span class="chip-label">Direct VA coordination</span>
+      </div>
+      <div id="s2-c3" class="chip glass-pill">
+        <span class="chip-icon">✓</span>
+        <span class="chip-label">All documentation handled</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── TAGLINE (track 3 · 31.67–33.45s) ─────── -->
+  <div id="tagline-wrap" class="clip"
+       data-start="31.67" data-duration="1.78" data-track-index="3"
+       style="position:absolute;top:0;left:0;width:1920px;height:1080px;pointer-events:none;
+              display:flex;align-items:center;justify-content:center;">
+    <div id="tagline-card" class="glass tagline-panel" style="width:780px;">
+      <span class="tagline-line">You relax.</span>
+      <span class="tagline-line"><span class="tagline-accent">We</span> work.</span>
+    </div>
+  </div>
+
+  <!-- ── STEP 3 (track 3 · 33.45–37.75s) ────────── -->
+  <div id="step3-wrap" class="clip"
+       data-start="33.45" data-duration="4.30" data-track-index="3"
+       style="position:absolute;top:0;left:0;width:1920px;height:1080px;pointer-events:none;">
+
+    <div id="s3-badge" class="step-badge glass-blue"
+         style="position:absolute;left:50px;top:630px;">
+      <span class="step-num">Step 03</span>
+      <div class="step-divider"></div>
+      <span class="step-title">Care Begins</span>
+    </div>
+
+    <div id="s3-card" class="glass info-card"
+         style="position:absolute;left:50px;top:697px;width:580px;">
+      <div class="card-eyebrow">Fast Turnaround</div>
+      <div class="card-headline">Care in 72 Hours</div>
+      <div class="card-sub">From approval to your front door</div>
+    </div>
+
+  </div>
+
+  <!-- ── CAREGIVER (track 3 · 37.75–43.99s) ──────── -->
+  <div id="care-wrap" class="clip"
+       data-start="37.75" data-duration="6.24" data-track-index="3"
+       style="position:absolute;top:0;left:0;width:1920px;height:1080px;pointer-events:none;">
+
+    <div id="care-badge" class="step-badge glass-blue"
+         style="position:absolute;left:50px;top:590px;">
+      <span class="step-num" style="color:rgba(240,248,255,0.85);">Your Caregiver</span>
+    </div>
+
+    <div id="care-card" class="glass info-card"
+         style="position:absolute;left:50px;top:657px;width:580px;">
+      <div class="card-eyebrow">Trained Professional</div>
+      <div class="card-headline" style="font-size:40px;">Military Culture Aware</div>
+    </div>
+
+    <div id="care-chips"
+         style="position:absolute;left:50px;top:808px;display:flex;flex-direction:column;gap:9px;">
+      <div id="care-c1" class="chip glass-pill">
+        <span class="chip-icon">✓</span>
+        <span class="chip-label">Understands military values</span>
+      </div>
+      <div id="care-c2" class="chip glass-pill">
+        <span class="chip-icon">✓</span>
+        <span class="chip-label">Respects your independence</span>
+      </div>
+      <div id="care-c3" class="chip glass-pill">
+        <span class="chip-icon">✓</span>
+        <span class="chip-label">On time, every time</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── TRUST (track 3 · 43.99–55.49s) ──────────── -->
+  <div id="trust-wrap" class="clip"
+       data-start="43.99" data-duration="11.50" data-track-index="3"
+       style="position:absolute;top:0;left:0;width:1920px;height:1080px;pointer-events:none;">
+
+    <div id="trust-header" class="step-badge glass-blue"
+         style="position:absolute;left:50px;top:560px;">
+      <span class="step-num" style="color:rgba(240,248,255,0.85);">VA Certified Partners</span>
+    </div>
+
+    <div id="trust-atl" class="va-badge glass-pill"
+         style="position:absolute;left:50px;top:628px;">
+      <span class="va-check">✓</span>
+      <span class="va-name">Atlanta VA Medical Center</span>
+    </div>
+
+    <div id="trust-dec" class="va-badge glass-pill"
+         style="position:absolute;left:50px;top:700px;">
+      <span class="va-check">✓</span>
+      <span class="va-name">Decatur VA</span>
+    </div>
+
+    <div id="trust-quote" class="glass info-card"
+         style="position:absolute;left:50px;top:780px;width:580px;">
+      <div class="card-headline" style="font-size:38px;line-height:1.15;max-width:480px;">
+        They know us. They trust us.
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── CTA (track 3 · 55.49–61.5s) ─────────────── -->
+  <div id="cta-wrap" class="clip"
+       data-start="55.49" data-duration="6.01" data-track-index="3"
+       style="position:absolute;top:0;left:0;width:1920px;height:1080px;pointer-events:none;">
+
+    <div id="cta-panel" class="glass cta-panel"
+         style="position:absolute;left:50px;top:520px;width:680px;">
+      <div class="cta-eyebrow">Get Started Today — It's Free</div>
+      <div class="cta-heading">Call Elite Care</div>
+      <div class="cta-phone">470-802-8834</div>
+      <div class="cta-divider"></div>
+      <div class="cta-web">EliteCareHealthServices.com</div>
+    </div>
+
+  </div>
+
+  <!-- ── CAPTIONS (track 4 · full duration) ────── -->
+  <div id="captions-wrap" class="clip"
+       data-start="0" data-duration="61.5" data-track-index="4"
+       style="position:absolute;top:0;left:0;width:1920px;height:1080px;pointer-events:none;">
+
+    <div id="cg-0"  class="caption-group"><span class="caption-text">The VA approval process sounds complicated,</span></div>
+    <div id="cg-1"  class="caption-group"><span class="caption-text">but we've made it simple.</span></div>
+    <div id="cg-2"  class="caption-group"><span class="caption-text">Here's exactly how it works.</span></div>
+    <div id="cg-3"  class="caption-group"><span class="caption-text">Step 1 — call us at 470-802-8834</span></div>
+    <div id="cg-4"  class="caption-group"><span class="caption-text">for a free VA benefits check.</span></div>
+    <div id="cg-5"  class="caption-group"><span class="caption-text">We'll ask about your service history and current needs.</span></div>
+    <div id="cg-6"  class="caption-group"><span class="caption-text">This takes about 10 minutes.</span></div>
+    <div id="cg-7"  class="caption-group"><span class="caption-text">We'll tell you right away if you qualify.</span></div>
+    <div id="cg-8"  class="caption-group"><span class="caption-text">Step 2 — we handle all the VA paperwork.</span></div>
+    <div id="cg-9"  class="caption-group"><span class="caption-text">You don't fill out a single form.</span></div>
+    <div id="cg-10" class="caption-group"><span class="caption-text">We coordinate directly with your VA case manager.</span></div>
+    <div id="cg-11" class="caption-group"><span class="caption-text">We submit all documentation until you're approved.</span></div>
+    <div id="cg-12" class="caption-group"><span class="caption-text">You relax, we work.</span></div>
+    <div id="cg-13" class="caption-group"><span class="caption-text">Step 3 — once approved, care starts in 72 hours.</span></div>
+    <div id="cg-14" class="caption-group"><span class="caption-text">We match you with a trained caregiver</span></div>
+    <div id="cg-15" class="caption-group"><span class="caption-text">who understands military culture and respects your independence.</span></div>
+    <div id="cg-16" class="caption-group"><span class="caption-text">They show up on time, every time.</span></div>
+    <div id="cg-17" class="caption-group"><span class="caption-text">We work directly with Atlanta VA Medical Center and Decatur VA.</span></div>
+    <div id="cg-18" class="caption-group"><span class="caption-text">They know us, they trust us, and they refer veterans to us</span></div>
+    <div id="cg-19" class="caption-group"><span class="caption-text">because we deliver what we promise.</span></div>
+    <div id="cg-20" class="caption-group"><span class="caption-text">Call Elite Care at 470-802-8834.</span></div>
+    <div id="cg-21" class="caption-group"><span class="caption-text">From your first call to care in your home, we make it easy.</span></div>
+
+  </div>
+
+</div><!-- #root -->
+
+<script>
+  window.__timelines = window.__timelines || {};
+  var tl = gsap.timeline({ paused: true });
+
+  /* ── Company badge entrance ──────────────────── */
+  tl.from("#brand-badge", { y: -18, opacity: 0, duration: 0.55, ease: "power3.out" }, 0.25);
+
+  /* ── STEP 1  start: 6.66s ────────────────────── */
+  var T1 = 6.66;
+  tl.from("#s1-badge",  { x: -36, opacity: 0, duration: 0.50, ease: "power3.out" }, T1 + 0.28);
+  tl.from("#s1-card",   { y: 22,  opacity: 0, duration: 0.45, ease: "power2.out" }, T1 + 0.54);
+  tl.from("#s1-phone",  { y: 16,  opacity: 0, duration: 0.40, ease: "expo.out"   }, T1 + 0.82);
+
+  /* ── STEP 2  start: 19.92s ───────────────────── */
+  var T2 = 19.92;
+  tl.from("#s2-badge",  { x: -36, opacity: 0, duration: 0.50, ease: "power3.out" }, T2 + 0.28);
+  tl.from("#s2-card",   { y: 22,  opacity: 0, duration: 0.45, ease: "power2.out" }, T2 + 0.54);
+  tl.from("#s2-c1",     { x: -20, opacity: 0, duration: 0.38, ease: "expo.out"   }, T2 + 0.82);
+  tl.from("#s2-c2",     { x: -20, opacity: 0, duration: 0.38, ease: "expo.out"   }, T2 + 1.02);
+  tl.from("#s2-c3",     { x: -20, opacity: 0, duration: 0.38, ease: "expo.out"   }, T2 + 1.22);
+
+  /* ── TAGLINE  start: 31.67s ──────────────────── */
+  var TG = 31.67;
+  tl.from("#tagline-card", { scale: 0.94, opacity: 0, duration: 0.38, ease: "expo.out" }, TG + 0.10);
+
+  /* ── STEP 3  start: 33.45s ───────────────────── */
+  var T3 = 33.45;
+  tl.from("#s3-badge",  { x: -36, opacity: 0, duration: 0.50, ease: "power3.out" }, T3 + 0.20);
+  tl.from("#s3-card",   { y: 22,  opacity: 0, duration: 0.45, ease: "power2.out" }, T3 + 0.46);
+
+  /* ── CAREGIVER  start: 37.75s ────────────────── */
+  var TC = 37.75;
+  tl.from("#care-badge", { x: -36, opacity: 0, duration: 0.50, ease: "power3.out" }, TC + 0.20);
+  tl.from("#care-card",  { y: 22,  opacity: 0, duration: 0.45, ease: "power2.out" }, TC + 0.46);
+  tl.from("#care-c1",    { x: -20, opacity: 0, duration: 0.38, ease: "expo.out"   }, TC + 0.72);
+  tl.from("#care-c2",    { x: -20, opacity: 0, duration: 0.38, ease: "expo.out"   }, TC + 0.92);
+  tl.from("#care-c3",    { x: -20, opacity: 0, duration: 0.38, ease: "expo.out"   }, TC + 1.12);
+
+  /* ── TRUST  start: 43.99s ────────────────────── */
+  var TT = 43.99;
+  tl.from("#trust-header", { x: -36, opacity: 0, duration: 0.50, ease: "power3.out" }, TT + 0.24);
+  tl.from("#trust-atl",    { x: -24, opacity: 0, duration: 0.45, ease: "power2.out" }, TT + 0.52);
+  tl.from("#trust-dec",    { x: -24, opacity: 0, duration: 0.40, ease: "power2.out" }, TT + 0.70);
+  tl.from("#trust-quote",  { y: 20,  opacity: 0, duration: 0.45, ease: "sine.out"   }, TT + 1.30);
+
+  /* ── CTA  start: 55.49s ──────────────────────── */
+  var TCTA = 55.49;
+  tl.from("#cta-panel",  { y: 28, opacity: 0, scale: 0.97, duration: 0.55, ease: "expo.out" }, TCTA + 0.20);
+  /* Final scene exit (CTA is the last scene — exits allowed) */
+  tl.to("#cta-panel",   { opacity: 0, duration: 0.48, ease: "power2.in" }, 60.82);
+  tl.to("#brand-badge", { opacity: 0, duration: 0.48, ease: "power2.in" }, 60.82);
+
+  /* ── CAPTIONS ────────────────────────────────── */
+  var GROUPS = [
+    { s: 0.10,  e: 3.28  }, /* cg-0  */
+    { s: 3.44,  e: 4.88  }, /* cg-1  */
+    { s: 5.14,  e: 6.60  }, /* cg-2  */
+    { s: 6.96,  e: 10.18 }, /* cg-3  */
+    { s: 10.20, e: 12.38 }, /* cg-4  */
+    { s: 12.60, e: 15.78 }, /* cg-5  */
+    { s: 15.86, e: 17.00 }, /* cg-6  */
+    { s: 17.26, e: 19.90 }, /* cg-7  */
+    { s: 20.27, e: 23.48 }, /* cg-8  */
+    { s: 23.91, e: 25.32 }, /* cg-9  */
+    { s: 25.42, e: 28.44 }, /* cg-10 */
+    { s: 28.71, e: 31.64 }, /* cg-11 */
+    { s: 32.07, e: 33.44 }, /* cg-12 */
+    { s: 33.75, e: 37.72 }, /* cg-13 */
+    { s: 38.15, e: 40.28 }, /* cg-14 */
+    { s: 40.30, e: 43.96 }, /* cg-15 */
+    { s: 44.39, e: 46.58 }, /* cg-16 */
+    { s: 46.97, e: 50.38 }, /* cg-17 */
+    { s: 50.40, e: 53.78 }, /* cg-18 */
+    { s: 53.82, e: 55.48 }, /* cg-19 */
+    { s: 55.84, e: 58.98 }, /* cg-20 */
+    { s: 59.06, e: 61.38 }  /* cg-21 */
+  ];
+
+  GROUPS.forEach(function(g, i) {
+    var sel = "#cg-" + i;
+    /* entrance: instant set → tween in */
+    tl.set(sel, { opacity: 0, y: 7, visibility: "visible" }, g.s);
+    tl.to(sel,  { opacity: 1, y: 0, duration: 0.18, ease: "power2.out" }, g.s);
+    /* exit: fade + hard kill */
+    tl.to(sel,  { opacity: 0, duration: 0.13, ease: "power2.in" }, g.e - 0.13);
+    tl.set(sel, { opacity: 0, visibility: "hidden" }, g.e);
+  });
+
+  /* Caption self-lint */
+  GROUPS.forEach(function(g, i) {
+    var el = document.getElementById("cg-" + i);
+    if (!el) return;
+    tl.seek(g.e + 0.02);
+    var st = window.getComputedStyle(el);
+    if (st.opacity !== "0" && st.visibility !== "hidden") {
+      console.warn("[caption-lint] cg-" + i + " still visible at t=" + (g.e + 0.02).toFixed(2) + "s");
+    }
+  });
+  tl.seek(0);
+
+  window.__timelines["elite-care-va-motion"] = tl;
+</script>
+
+</body>
+</html>
