@@ -306,7 +306,7 @@
 <div id="root"
      data-composition-id="elite-care-va-motion"
      data-width="1920" data-height="1080"
-     data-start="0" data-duration="61.5">
+     data-start="0" data-duration="65.5">
 
   <!-- ── VIDEO ─────────────────────────────────── -->
   <video id="el-v"
@@ -542,8 +542,52 @@
     <div id="cg-18" class="caption-group"><span class="caption-text">They know us, they trust us, and they refer veterans to us</span></div>
     <div id="cg-19" class="caption-group"><span class="caption-text">because we deliver what we promise.</span></div>
     <div id="cg-20" class="caption-group"><span class="caption-text">Call Elite Care at 470-802-8834.</span></div>
-    <div id="cg-21" class="caption-group"><span class="caption-text">From your first call to care in your home, we make it easy.</span></div>
+    <div id="cg-21" class="caption-group"><span class="caption-text">From your first call to care in your home,</span></div>
+    <div id="cg-22" class="caption-group"><span class="caption-text">we make it easy.</span></div>
 
+  </div>
+
+  <!-- ── OUTRO DARK OVERLAY ───────────────────── -->
+  <div id="outro-overlay"
+       style="position:absolute;top:0;left:0;width:1920px;height:1080px;
+              background:#08122a;opacity:0;pointer-events:none;z-index:10;">
+  </div>
+
+  <!-- ── OUTRO END CARD ────────────────────────── -->
+  <div id="outro-wrap"
+       style="position:absolute;top:0;left:0;width:1920px;height:1080px;
+              display:flex;align-items:center;justify-content:center;
+              pointer-events:none;opacity:0;z-index:11;">
+
+    <div id="outro-card" class="glass"
+         style="width:860px;padding:60px 80px;text-align:center;">
+
+      <div id="outro-badge" class="glass-blue"
+           style="display:inline-flex;align-items:center;gap:10px;padding:10px 24px;margin-bottom:32px;">
+        <div class="co-dot"></div>
+        <span style="font-family:'Figtree',sans-serif;font-size:12px;font-weight:600;letter-spacing:0.22em;text-transform:uppercase;color:#8EC8FF;">Elite Care Health Services</span>
+      </div>
+
+      <div id="outro-phone"
+           style="font-family:'Barlow Condensed',sans-serif;font-size:96px;font-weight:800;color:#4A9EFF;letter-spacing:0.08em;line-height:1.0;font-variant-numeric:tabular-nums;text-shadow:0 0 60px rgba(74,158,255,0.35);margin-bottom:22px;">
+        470-802-8834
+      </div>
+
+      <div id="outro-divider"
+           style="width:72px;height:2px;background:rgba(74,158,255,0.45);margin:0 auto 22px;border-radius:2px;transform-origin:center;">
+      </div>
+
+      <div id="outro-web"
+           style="font-family:'Figtree',sans-serif;font-size:22px;font-weight:500;color:rgba(240,248,255,0.82);letter-spacing:0.04em;margin-bottom:28px;">
+        EliteCareHealthServices.com
+      </div>
+
+      <div id="outro-tagline"
+           style="font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:700;letter-spacing:0.22em;text-transform:uppercase;color:rgba(240,248,255,0.50);">
+        Excellence in Every Visit
+      </div>
+
+    </div>
   </div>
 
 </div><!-- #root -->
@@ -596,9 +640,27 @@
   /* ── CTA  start: 55.49s ──────────────────────── */
   var TCTA = 55.49;
   tl.from("#cta-panel",  { y: 28, opacity: 0, scale: 0.97, duration: 0.55, ease: "expo.out" }, TCTA + 0.20);
-  /* Final scene exit (CTA is the last scene — exits allowed) */
-  tl.to("#cta-panel",   { opacity: 0, duration: 0.48, ease: "power2.in" }, 60.82);
-  tl.to("#brand-badge", { opacity: 0, duration: 0.48, ease: "power2.in" }, 60.82);
+  /* CTA exits as outro overlay fades in */
+  tl.to("#cta-panel",   { opacity: 0, duration: 0.48, ease: "power2.in" }, 61.10);
+  tl.to("#brand-badge", { opacity: 0, duration: 0.48, ease: "power2.in" }, 61.10);
+
+  /* ── OUTRO  start: 61.0s ─────────────────────── */
+  /* Dark navy overlay transitions from video to end card */
+  tl.to("#outro-overlay", { opacity: 1, duration: 0.55, ease: "power2.inOut" }, 61.0);
+
+  /* End card container fades in */
+  tl.to("#outro-wrap",    { opacity: 1, duration: 0.35, ease: "power2.out" }, 61.55);
+
+  /* Staggered sub-element entrances */
+  tl.from("#outro-badge",   { y: 18, opacity: 0, duration: 0.45, ease: "power3.out" }, 61.65);
+  tl.from("#outro-phone",   { y: 24, opacity: 0, duration: 0.50, ease: "power3.out" }, 61.85);
+  tl.from("#outro-divider", { scaleX: 0, opacity: 0, duration: 0.35, ease: "expo.out", transformOrigin: "center" }, 62.15);
+  tl.from("#outro-web",     { y: 12, opacity: 0, duration: 0.40, ease: "power2.out" }, 62.28);
+  tl.from("#outro-tagline", { y: 8,  opacity: 0, duration: 0.38, ease: "power2.out" }, 62.48);
+
+  /* Outro exits — fade to dark */
+  tl.to("#outro-wrap",    { opacity: 0, duration: 0.60, ease: "power2.in" }, 64.7);
+  tl.to("#outro-overlay", { opacity: 1, duration: 0.01 }, 65.4); /* hold black at end */
 
   /* ── CAPTIONS ────────────────────────────────── */
   var GROUPS = [
@@ -623,7 +685,8 @@
     { s: 50.40, e: 53.78 }, /* cg-18 */
     { s: 53.82, e: 55.48 }, /* cg-19 */
     { s: 55.84, e: 58.98 }, /* cg-20 */
-    { s: 59.06, e: 61.38 }  /* cg-21 */
+    { s: 59.06, e: 60.68 }, /* cg-21 */
+    { s: 60.76, e: 61.50 }  /* cg-22 */
   ];
 
   GROUPS.forEach(function(g, i) {
