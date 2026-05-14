@@ -120,6 +120,10 @@ npx hyperframes doctor                           # env check (Node, FFmpeg, Chro
 npx hyperframes info --json                      # project stats
 npx hyperframes benchmark                        # find optimal workers/quality
 npx hyperframes docs <topic>                     # inline docs: data-attributes, gsap, rendering, examples, troubleshooting, compositions
+
+# Workspace preflight (run from repo root)
+npm run preflight video-projects/<project>       # fast structural check — catches preview-blocking bugs (missing timeline, bad attr) before lint
+npm run preflight:all                            # run preflight across every project
 ```
 
 ### Render flags worth knowing
