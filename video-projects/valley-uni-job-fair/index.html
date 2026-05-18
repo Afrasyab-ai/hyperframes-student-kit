@@ -3,215 +3,175 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=1080, height=1920" />
-    <title>Valley University Job Fair</title>
+    <title>Valley University Job Fair v2</title>
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Teko:wght@700&family=Anton&family=Poppins:wght@700;900&display=block"
-      rel="stylesheet"
-    />
+    <link href="https://fonts.googleapis.com/css2?family=Teko:wght@700&family=Anton&family=Poppins:wght@700;900&display=block" rel="stylesheet" />
     <style>
       * { margin: 0; padding: 0; box-sizing: border-box; }
-      html, body {
-        margin: 0;
-        width: 1080px;
-        height: 1920px;
-        overflow: hidden;
-        background: #000;
+      html, body { margin: 0; width: 1080px; height: 1920px; overflow: hidden; background: #060810; }
+
+      /* ── Ambient background ── */
+      #ambient-bg {
+        position: absolute; inset: 0; z-index: 0;
+        background:
+          radial-gradient(ellipse 80% 60% at 50% 110%, rgba(232,0,28,0.12) 0%, transparent 70%),
+          radial-gradient(ellipse 100% 100% at 50% 0%, rgba(10,14,30,1) 0%, rgba(6,8,16,1) 100%);
       }
-
-      /* ── Full-bleed source video ── */
-      #src-video {
-        position: absolute;
-        top: 0; left: 0;
-        width: 1080px; height: 1920px;
-        object-fit: cover;
-        z-index: 0;
+      /* Animated noise grain */
+      #ambient-bg::before {
+        content: "";
+        position: absolute; inset: 0;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+        opacity: 0.04;
+        pointer-events: none;
       }
-
-      /* Subtle color grade: punchy face, warm-ish for Pakistani creator feel */
-      #src-video { filter: contrast(1.06) saturate(1.1) brightness(1.02); }
-
-      /* ── Shared layer base ── */
-      .layer {
-        position: absolute;
-        top: 0; left: 0;
-        width: 1080px; height: 1920px;
+      /* Grid overlay */
+      #ambient-bg::after {
+        content: "";
+        position: absolute; inset: 0;
+        background-image:
+          linear-gradient(rgba(232,0,28,0.06) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(232,0,28,0.06) 1px, transparent 1px);
+        background-size: 108px 108px;
         pointer-events: none;
       }
 
-      /* ── HOOK TEXT — top 1/4 of screen ── */
-      #hook {
-        position: absolute;
-        top: 140px;
-        left: 0; right: 0;
-        text-align: center;
-        z-index: 10;
-        font-family: 'Teko', sans-serif;
-        font-weight: 700;
-        line-height: 0.92;
-        text-transform: uppercase;
-        transform: skewX(-4deg);
-        opacity: 0;
+      /* ── Video wrapper — pushed down for "text-top" mode ── */
+      #video-wrapper {
+        position: absolute; top: 0; left: 0;
+        width: 1080px; height: 1920px;
+        z-index: 1;
+        transform-origin: 50% 0;
       }
-      #hook-line1 {
-        display: block;
-        font-size: 148px;
-        color: #ffffff;
-        text-shadow: 0 4px 0 rgba(0,0,0,0.9), 0 0 40px rgba(0,0,0,0.7);
-        letter-spacing: -2px;
+      #src-video {
+        position: absolute; top: 0; left: 0;
+        width: 100%; height: 100%;
+        object-fit: cover;
+        filter: contrast(1.07) saturate(1.12) brightness(1.01);
       }
-      #hook-line2 {
-        display: block;
-        font-size: 172px;
-        color: #e8001c;
-        text-shadow: 0 4px 0 rgba(0,0,0,0.9), 0 0 40px rgba(0,0,0,0.6);
-        letter-spacing: -3px;
+      /* Bottom vignette on video — sinks face into ambient bg */
+      #video-wrapper::after {
+        content: ""; position: absolute; inset: 0; pointer-events: none;
+        background: linear-gradient(to top, rgba(6,8,16,0.6) 0%, transparent 30%),
+                    linear-gradient(to bottom, rgba(6,8,16,0) 0%, transparent 20%);
       }
 
-      /* ── WHITE CARD INSERT ── */
-      #white-card {
-        position: absolute;
-        left: 60px; right: 60px;
-        top: 580px;
-        background: #ffffff;
-        border-radius: 24px;
-        padding: 52px 60px 56px;
-        z-index: 20;
+      /* ── Scene layers base ── */
+      .layer { position: absolute; top: 0; left: 0; width: 1080px; height: 1920px; }
+
+      /* ── HOOK — appears at top of screen ── */
+      #hook {
+        position: absolute; top: 80px; left: 0; right: 0;
+        text-align: center; z-index: 20;
+        font-family: 'Teko', sans-serif; font-weight: 700;
+        text-transform: uppercase; transform: skewX(-5deg);
         opacity: 0;
-        box-shadow: 0 24px 80px rgba(0,0,0,0.55);
       }
-      #card-eyebrow {
-        font-family: 'Anton', sans-serif;
-        font-size: 34px;
-        color: #e8001c;
-        letter-spacing: 4px;
+      #hook-l1 { display: block; font-size: 120px; color: #fff; line-height: 0.9; letter-spacing: -2px;
+        text-shadow: 0 4px 0 rgba(0,0,0,0.9), 0 0 60px rgba(0,0,0,0.8); }
+      #hook-l2 { display: block; font-size: 190px; color: #e8001c; line-height: 0.88; letter-spacing: -6px;
+        text-shadow: 0 5px 0 rgba(0,0,0,0.9), 0 0 80px rgba(232,0,28,0.4); }
+
+      /* ── CAPTIONS — bottom zone, always above B-roll ── */
+      .cap {
+        position: absolute; left: 50px; right: 50px; bottom: 220px;
+        text-align: center; z-index: 60;
+        font-family: 'Poppins', sans-serif; font-weight: 900;
+        font-size: 58px; line-height: 1.15; color: #fff;
         text-transform: uppercase;
-        margin-bottom: 12px;
+        text-shadow: 3px 3px 0 #000, -3px -3px 0 #000, 3px -3px 0 #000, -3px 3px 0 #000,
+                     0 0 30px rgba(0,0,0,0.95);
+        opacity: 0;
       }
-      #card-headline {
-        font-family: 'Anton', sans-serif;
-        font-size: 72px;
-        color: #000000;
-        line-height: 1;
-        text-transform: uppercase;
-        margin-bottom: 44px;
-        letter-spacing: -1px;
+      .cap .hot { color: #e8001c; }
+
+      /* ── FULL-SCREEN B-ROLL OVERLAYS ── */
+      .broll {
+        position: absolute; inset: 0; z-index: 40;
+        opacity: 0;
+        display: flex; flex-direction: column;
+        align-items: center; justify-content: center;
       }
-      #card-headline span { color: #e8001c; }
+      .broll-bg {
+        position: absolute; inset: 0;
+        background: linear-gradient(160deg, #080c1a 0%, #050810 50%, #0d0508 100%);
+      }
+      /* Red accent stripe on B-roll */
+      .broll-stripe {
+        position: absolute; left: 0; top: 0; width: 8px; height: 100%;
+        background: linear-gradient(to bottom, transparent, #e8001c 30%, #e8001c 70%, transparent);
+      }
+      .broll-content {
+        position: relative; z-index: 2;
+        width: 100%; padding: 0 80px;
+        text-align: center;
+      }
+      .broll-eyebrow {
+        font-family: 'Anton', sans-serif; font-size: 32px;
+        color: #e8001c; letter-spacing: 8px; text-transform: uppercase;
+        margin-bottom: 24px; opacity: 0;
+      }
+      .broll-headline {
+        font-family: 'Teko', sans-serif; font-weight: 700;
+        font-size: 200px; color: #fff; line-height: 0.88;
+        text-transform: uppercase; letter-spacing: -8px;
+        text-shadow: 0 8px 0 rgba(0,0,0,0.6);
+        opacity: 0; transform: skewX(-4deg);
+      }
+      .broll-sub {
+        font-family: 'Anton', sans-serif; font-size: 48px;
+        color: #e8001c; letter-spacing: 4px; text-transform: uppercase;
+        margin-top: -8px; opacity: 0;
+      }
+      .broll-bar {
+        width: 480px; height: 6px; margin: 28px auto 0;
+        background: linear-gradient(to right, #ffffff 60%, #e8001c 60%);
+        border-radius: 3px; opacity: 0;
+      }
+
+      /* ── Card list B-roll ── */
+      .card-list { width: 100%; padding: 0 60px; }
       .card-item {
-        display: flex;
-        align-items: flex-start;
-        gap: 24px;
-        margin-bottom: 28px;
-        opacity: 0;
+        display: flex; align-items: center; gap: 28px;
+        margin-bottom: 32px; opacity: 0; transform: translateX(-40px);
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-left: 4px solid #e8001c;
+        border-radius: 16px; padding: 24px 36px;
       }
       .card-item:last-child { margin-bottom: 0; }
-      .card-check {
-        flex-shrink: 0;
-        width: 44px; height: 44px;
-        background: #e8001c;
-        border-radius: 50%;
-        display: flex; align-items: center; justify-content: center;
-        font-family: 'Anton', sans-serif;
-        font-size: 22px;
-        color: #fff;
-        margin-top: 4px;
+      .card-num {
+        font-family: 'Teko', sans-serif; font-weight: 700; font-size: 64px;
+        color: #e8001c; line-height: 1; flex-shrink: 0;
       }
-      .card-text {
-        font-family: 'Poppins', sans-serif;
-        font-weight: 700;
-        font-size: 48px;
-        color: #000;
-        line-height: 1.1;
-        text-transform: uppercase;
-      }
-      .card-text strong { color: #e8001c; }
+      .card-text-wrap { text-align: left; }
+      .card-label { font-family: 'Anton', sans-serif; font-size: 38px; color: #fff; text-transform: uppercase; line-height: 1.1; }
+      .card-sub { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 26px; color: rgba(255,255,255,0.6); text-transform: uppercase; margin-top: 4px; }
 
-      /* ── STAT BURST ── */
-      #stat-burst {
-        position: absolute;
-        left: 0; right: 0;
-        bottom: 520px;
-        text-align: center;
-        z-index: 15;
-        opacity: 0;
+      /* ── Location pins B-roll ── */
+      .locations { width: 100%; padding: 0 60px; }
+      .loc-item {
+        display: flex; align-items: center; gap: 24px;
+        margin-bottom: 24px; opacity: 0; transform: translateY(30px);
       }
-      #stat-num {
-        font-family: 'Teko', sans-serif;
-        font-weight: 700;
-        font-size: 240px;
-        color: #ffffff;
-        line-height: 1;
-        letter-spacing: -6px;
-        text-shadow: 0 6px 0 rgba(0,0,0,0.85), 0 0 60px rgba(0,0,0,0.6);
-        display: block;
-      }
-      #stat-label {
-        font-family: 'Anton', sans-serif;
-        font-size: 52px;
-        color: #e8001c;
-        letter-spacing: 8px;
-        text-transform: uppercase;
-        text-shadow: 0 3px 0 rgba(0,0,0,0.8);
-        display: block;
-        margin-top: -16px;
-      }
-      #stat-bar {
-        width: 420px;
-        height: 8px;
-        background: linear-gradient(to right, #ffffff 60%, #e8001c 60%);
-        margin: 18px auto 0;
-        border-radius: 4px;
+      .loc-dot { width: 20px; height: 20px; background: #e8001c; border-radius: 50%; flex-shrink: 0;
+        box-shadow: 0 0 20px rgba(232,0,28,0.6); }
+      .loc-name { font-family: 'Anton', sans-serif; font-size: 52px; color: #fff; text-transform: uppercase; }
+      .loc-badge {
+        margin-left: auto; font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 24px;
+        color: #e8001c; letter-spacing: 2px; text-transform: uppercase;
+        border: 2px solid #e8001c; border-radius: 100px; padding: 6px 20px;
       }
 
-      /* ── CAPTIONS ── */
-      .caption {
-        position: absolute;
-        left: 60px; right: 60px;
-        bottom: 260px;
-        text-align: center;
-        font-family: 'Poppins', sans-serif;
-        font-weight: 900;
-        font-size: 62px;
-        line-height: 1.15;
-        color: #ffffff;
-        text-transform: uppercase;
-        text-shadow:
-          3px 3px 0 #000,
-          -3px -3px 0 #000,
-          3px -3px 0 #000,
-          -3px 3px 0 #000,
-          0 6px 20px rgba(0,0,0,0.9);
-        opacity: 0;
-        z-index: 30;
-      }
-      .caption .hot { color: #e8001c; }
-
-      /* ── BOTTOM BAR CTA ── */
+      /* ── CTA bar ── */
       #cta-bar {
-        position: absolute;
-        left: 0; right: 0;
-        bottom: 0;
-        height: 180px;
-        background: #e8001c;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 25;
-        opacity: 0;
+        position: absolute; left: 0; right: 0; bottom: 0; height: 180px;
+        background: #e8001c; z-index: 50; opacity: 0;
+        display: flex; align-items: center; justify-content: center; gap: 20px;
       }
       #cta-text {
-        font-family: 'Anton', sans-serif;
-        font-size: 64px;
-        color: #ffffff;
-        letter-spacing: 6px;
-        text-transform: uppercase;
-      }
-      #cta-arrow {
-        font-size: 72px;
-        color: #ffffff;
-        margin-left: 24px;
-        display: inline-block;
+        font-family: 'Anton', sans-serif; font-size: 60px; color: #fff;
+        letter-spacing: 5px; text-transform: uppercase;
       }
     </style>
   </head>
@@ -225,117 +185,100 @@
       data-height="1920"
       style="position:relative;width:1080px;height:1920px;overflow:hidden;"
     >
-    <!-- Track 0: source video -->
-    <video
-      id="src-video"
-      data-start="0"
-      data-duration="47"
-      data-track-index="0"
-      src="assets/source.mp4"
-      muted
-      playsinline
-    ></video>
+      <!-- Ambient background -->
+      <div id="ambient-bg"></div>
 
-    <!-- Track 1: audio -->
-    <audio
-      id="src-audio"
-      data-start="0"
-      data-duration="47"
-      data-track-index="1"
-      data-volume="1"
-      src="assets/source.mp4"
-    ></audio>
-
-    <!-- Track 2: Hook text (0–4.5s) -->
-    <div
-      id="hook"
-      class="clip"
-      data-start="0"
-      data-duration="4.5"
-      data-track-index="2"
-    >
-      <span id="hook-line1">JOB FAIR</span>
-      <span id="hook-line2">FREE ENTRY</span>
-    </div>
-
-    <!-- Track 3: White card (13–25s) — event benefits -->
-    <div
-      id="white-card"
-      class="clip"
-      data-start="13"
-      data-duration="12"
-      data-track-index="3"
-    >
-      <div id="card-eyebrow">VALLEY UNIVERSITY</div>
-      <div id="card-headline">THE <span>BENEFITS</span></div>
-      <div class="card-item" id="ci1">
-        <div class="card-check">✓</div>
-        <div class="card-text"><strong>100% SCHOLARSHIP</strong></div>
+      <!-- Video wrapper (animated for face-mode) -->
+      <div id="video-wrapper">
+        <video
+          id="src-video"
+          data-start="0"
+          data-duration="47"
+          data-track-index="0"
+          src="assets/source.mp4"
+          muted playsinline
+        ></video>
       </div>
-      <div class="card-item" id="ci2">
-        <div class="card-check">✓</div>
-        <div class="card-text">PAID PROGRAMS</div>
-      </div>
-      <div class="card-item" id="ci3">
-        <div class="card-check">✓</div>
-        <div class="card-text">JOB PLACEMENT</div>
-      </div>
-      <div class="card-item" id="ci4">
-        <div class="card-check">✓</div>
-        <div class="card-text">WORK FROM HOME</div>
-      </div>
-    </div>
 
-    <!-- Track 4: Stat burst (32–42s) -->
-    <div
-      id="stat-burst"
-      class="clip"
-      data-start="32"
-      data-duration="10"
-      data-track-index="4"
-    >
-      <span id="stat-num">5,000</span>
-      <span id="stat-label">HIRED THIS YEAR</span>
-      <div id="stat-bar"></div>
-    </div>
+      <!-- Audio -->
+      <audio id="src-audio" data-start="0" data-duration="47" data-track-index="1" data-volume="1" src="assets/source.mp4"></audio>
 
-    <!-- Track 5: Captions — synced to spoken English -->
-    <div id="cap-1" class="caption clip" data-start="0.0" data-duration="1.8" data-track-index="5">
-      HEY STUDENTS OF<br><span class="hot">RAWALPINDI</span>
-    </div>
-    <div id="cap-2" class="caption clip" data-start="1.8" data-duration="2.0" data-track-index="5">
-      AND <span class="hot">ISLAMABAD</span>
-    </div>
-    <div id="cap-3" class="caption clip" data-start="3.8" data-duration="2.5" data-track-index="5">
-      WE ARE <span class="hot">COMING TO YOU</span>
-    </div>
-    <div id="cap-4" class="caption clip" data-start="6.5" data-duration="3.0" data-track-index="5">
-      <span class="hot">JOB FAIR</span><br>AT BARRIER UNIVERSITY
-    </div>
-    <div id="cap-5" class="caption clip" data-start="9.5" data-duration="2.5" data-track-index="5">
-      AND <span class="hot">ISLAMIC UNIVERSITY</span>
-    </div>
-    <div id="cap-6" class="caption clip" data-start="26" data-duration="3.0" data-track-index="5">
-      <span class="hot">100% SCHOLARSHIP</span><br>AVAILABLE
-    </div>
-    <div id="cap-7" class="caption clip" data-start="29" data-duration="3.0" data-track-index="5">
-      SERIOUS <span class="hot">INCOME</span><br>FROM HOME
-    </div>
-    <div id="cap-8" class="caption clip" data-start="43" data-duration="3.5" data-track-index="5">
-      BECOME PART<br>OF THIS <span class="hot">MISSION</span>
-    </div>
+      <!-- Track 3: Hook (0–4.5s) -->
+      <div id="hook" class="clip" data-start="0" data-duration="4.5" data-track-index="3">
+        <span id="hook-l1">JOB FAIR</span>
+        <span id="hook-l2">ALERT!</span>
+      </div>
 
-    <!-- Track 6: CTA bottom bar (43.5–47s) -->
-    <div
-      id="cta-bar"
-      class="clip"
-      data-start="43.5"
-      data-duration="3.5"
-      data-track-index="6"
-    >
-      <span id="cta-text">DM TO APPLY NOW</span>
-      <span id="cta-arrow">→</span>
-    </div>
+      <!-- Track 4: B-roll 1 — 100% SCHOLARSHIP (16–21s) -->
+      <div id="broll-1" class="broll clip" data-start="16" data-duration="5" data-track-index="4">
+        <div class="broll-bg"></div>
+        <div class="broll-stripe"></div>
+        <div class="broll-content">
+          <div class="broll-eyebrow" id="br1-eye">MOST IMPORTANT THING</div>
+          <div class="broll-headline" id="br1-num">100%</div>
+          <div class="broll-sub" id="br1-sub">SCHOLARSHIP</div>
+          <div class="broll-bar" id="br1-bar"></div>
+          <div style="margin-top:40px; font-family:'Poppins',sans-serif; font-weight:700; font-size:38px; color:rgba(255,255,255,0.7); text-transform:uppercase; opacity:0;" id="br1-desc">For all qualifying students</div>
+        </div>
+      </div>
+
+      <!-- Track 5: B-roll 2 — OFFICES + REMOTE (28–36s) -->
+      <div id="broll-2" class="broll clip" data-start="28" data-duration="8" data-track-index="5">
+        <div class="broll-bg"></div>
+        <div class="broll-stripe"></div>
+        <div class="broll-content">
+          <div class="broll-eyebrow" id="br2-eye">JOIN US</div>
+          <div style="font-family:'Teko',sans-serif;font-weight:700;font-size:130px;color:#fff;line-height:0.9;text-transform:uppercase;letter-spacing:-4px;margin-bottom:48px;text-shadow:0 6px 0 rgba(0,0,0,0.6);opacity:0;transform:skewX(-4deg);" id="br2-title">2 OFFICES<br><span style="color:#e8001c;">+ REMOTE</span></div>
+          <div class="locations" id="br2-locs">
+            <div class="loc-item" id="loc1">
+              <div class="loc-dot"></div>
+              <div class="loc-name">ISLAMABAD</div>
+              <div class="loc-badge">OFFICE 1</div>
+            </div>
+            <div class="loc-item" id="loc2">
+              <div class="loc-dot"></div>
+              <div class="loc-name">RAWALPINDI</div>
+              <div class="loc-badge">OFFICE 2</div>
+            </div>
+            <div class="loc-item" id="loc3">
+              <div class="loc-dot" style="background:#fff;"></div>
+              <div class="loc-name" style="color:rgba(255,255,255,0.7)">ANYWHERE</div>
+              <div class="loc-badge" style="color:#fff;border-color:#fff;">REMOTE ✓</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Track 6: B-roll 3 — 5,000 STAT (36–44s) -->
+      <div id="broll-3" class="broll clip" data-start="36" data-duration="8" data-track-index="6">
+        <div class="broll-bg"></div>
+        <div class="broll-stripe"></div>
+        <div class="broll-content">
+          <div class="broll-eyebrow" id="br3-eye">EMPOWER PAKISTAN</div>
+          <div style="font-family:'Anton',sans-serif;font-size:44px;color:rgba(255,255,255,0.6);letter-spacing:6px;text-transform:uppercase;margin-bottom:12px;opacity:0;" id="br3-pre">OUR MISSION</div>
+          <div class="broll-headline" id="br3-num" style="font-size:280px;letter-spacing:-12px;">5,000</div>
+          <div class="broll-sub" id="br3-sub">HIRED THIS YEAR</div>
+          <div class="broll-bar" id="br3-bar" style="width:560px;"></div>
+          <div style="margin-top:48px;font-family:'Poppins',sans-serif;font-weight:700;font-size:36px;color:rgba(255,255,255,0.55);text-transform:uppercase;opacity:0;" id="br3-desc">Let's empower Pakistan together</div>
+        </div>
+      </div>
+
+      <!-- Track 7: CTA bar (43.5–47s) -->
+      <div id="cta-bar" class="clip" data-start="43.5" data-duration="3.5" data-track-index="7">
+        <span id="cta-text">DM TO APPLY NOW →</span>
+      </div>
+
+      <!-- Track 2: Captions — phrase groups from Urdu→English translation -->
+      <div id="c1"  class="cap clip" data-start="0.34" data-duration="2.1"  data-track-index="2">WE'RE COMING TO YOUR <span class="hot">JOB FAIR</span></div>
+      <div id="c2"  class="cap clip" data-start="2.86" data-duration="2.0"  data-track-index="2">TOMORROW WITH <span class="hot">DR. MARIAM AHMAD</span></div>
+      <div id="c3"  class="cap clip" data-start="5.02" data-duration="3.5"  data-track-index="2">HAVING THE <span class="hot">SESSION</span> WITH ALL OF YOU</div>
+      <div id="c4"  class="cap clip" data-start="9.94" data-duration="3.5"  data-track-index="2">BEST THING — MEETING YOU <span class="hot">IN LIVE</span></div>
+      <div id="c5"  class="cap clip" data-start="13.8" data-duration="2.1"  data-track-index="2">THE MOST <span class="hot">IMPORTANT THING</span></div>
+      <div id="c6"  class="cap clip" data-start="21.48" data-duration="3.7" data-track-index="2">PAID PROGRAMS — TRAIN YOU<br><span class="hot">JOB PLACEMENT</span></div>
+      <div id="c7"  class="cap clip" data-start="25.8"  data-duration="2.6" data-track-index="2">THAT'S WHERE YOU CAN <span class="hot">MAKE MONEY</span></div>
+      <div id="c8"  class="cap clip" data-start="36.6"  data-duration="3.3" data-track-index="2">FIRST UNIVERSITY <span class="hot">MEETS YOU TOMORROW</span></div>
+      <div id="c9"  class="cap clip" data-start="40.96" data-duration="2.6" data-track-index="2">LET'S <span class="hot">EMPOWER PAKISTAN</span></div>
+      <div id="c10" class="cap clip" data-start="43.94" data-duration="2.1" data-track-index="2"><span class="hot">5,000</span> IN THIS YEAR</div>
 
     </div><!-- end #root -->
 
@@ -343,47 +286,84 @@
       window.__timelines = window.__timelines || {};
       const tl = gsap.timeline({ paused: true });
 
-      /* ── HOOK TEXT (0–4.5s) ── */
-      tl.fromTo("#hook", { opacity: 0, y: -40, scale: 0.85 },
-        { opacity: 1, y: 0, scale: 1, duration: 0.35, ease: "back.out(1.4)" }, 0.1);
-      tl.to("#hook", { opacity: 0, y: -30, duration: 0.25, ease: "power2.in" }, 4.1);
+      /* ── VIDEO FACE-MODE CHOREOGRAPHY ── */
+      /* Vertical source: TEXT_TOP shifts video down exposing ambient bg at top */
+      const TEXT_TOP = { y: 260, scale: 0.92, duration: 0.4, ease: "expo.inOut" };
+      const FULLSCREEN = { y: 0, scale: 1.0, duration: 0.4, ease: "expo.inOut" };
 
-      /* ── WHITE CARD ENTRANCE (13s) ── */
-      tl.fromTo("#white-card", { opacity: 0, y: 60 },
-        { opacity: 1, y: 0, duration: 0.4, ease: "expo.out" }, 13);
-      tl.fromTo(["#ci1","#ci2","#ci3","#ci4"], { opacity: 0, x: -30 },
-        { opacity: 1, x: 0, duration: 0.3, ease: "power3.out", stagger: 0.12 }, 13.35);
-      /* Card exit */
-      tl.to("#white-card", { opacity: 0, y: -40, duration: 0.3, ease: "power2.in" }, 24.7);
+      tl.set("#video-wrapper", { y: 260, scale: 0.92 }, 0); // start in TEXT_TOP for hook
+      tl.to("#video-wrapper", { ...FULLSCREEN }, 4.3);       // go fullscreen when B-roll not active
+      tl.to("#video-wrapper", { ...FULLSCREEN }, 21);        // keep fullscreen (paid programs captions)
+      tl.to("#video-wrapper", { ...FULLSCREEN }, 44);        // keep fullscreen for CTA
 
-      /* ── STAT BURST (32s) ── */
-      tl.fromTo("#stat-burst", { opacity: 0, scale: 0.7 },
-        { opacity: 1, scale: 1, duration: 0.4, ease: "back.out(1.6)" }, 32);
-      tl.to("#stat-burst", { opacity: 0, scale: 1.1, duration: 0.3, ease: "power2.in" }, 41.7);
-
-      /* ── CAPTIONS — each fades in/out ── */
-      const capIds = ["#cap-1","#cap-2","#cap-3","#cap-4","#cap-5",
-                      "#cap-6","#cap-7","#cap-8"];
-      const capStarts = [0.0, 1.8, 3.8, 6.5, 9.5, 26, 29, 43];
-      const capDurs = [1.8, 2.0, 2.5, 3.0, 2.5, 3.0, 3.0, 3.5];
-      capIds.forEach((id, i) => {
-        const s = capStarts[i];
-        const d = capDurs[i];
-        tl.fromTo(id, { opacity: 0, y: 18 },
-          { opacity: 1, y: 0, duration: 0.18, ease: "power2.out" }, s);
-        tl.to(id, { opacity: 0, y: -14, duration: 0.15, ease: "power2.in" }, s + d - 0.18);
-      });
-
-      /* ── CTA BOTTOM BAR (43.5s) ── */
-      tl.fromTo("#cta-bar", { opacity: 0, y: 180 },
-        { opacity: 1, y: 0, duration: 0.35, ease: "expo.out" }, 43.5);
-
-      /* ── Ken Burns on video ── */
+      /* ── Ken Burns subtle zoom ── */
       tl.fromTo("#src-video", { scale: 1 }, { scale: 1.04, duration: 47, ease: "none" }, 0);
 
-      /* Pad to full duration */
-      tl.set({}, {}, 47);
+      /* ── HOOK (0s) ── */
+      tl.fromTo("#hook",
+        { opacity: 0, y: -60, scale: 0.8 },
+        { opacity: 1, y: 0, scale: 1, duration: 0.38, ease: "back.out(1.5)" }, 0.1);
+      tl.to("#hook", { opacity: 0, y: -40, scale: 0.9, duration: 0.28, ease: "power2.in" }, 4.1);
 
+      /* ── B-ROLL 1: 100% SCHOLARSHIP (16s) ── */
+      tl.fromTo("#broll-1", { opacity: 0 }, { opacity: 1, duration: 0.2, ease: "none" }, 16);
+      tl.fromTo("#br1-eye", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.3, ease: "power3.out" }, 16.15);
+      tl.fromTo("#br1-num",
+        { opacity: 0, scale: 0.6, skewX: -4 },
+        { opacity: 1, scale: 1, skewX: -4, duration: 0.45, ease: "back.out(1.3)" }, 16.35);
+      tl.fromTo("#br1-sub", { opacity: 0, x: 40 }, { opacity: 1, x: 0, duration: 0.3, ease: "power3.out" }, 16.7);
+      tl.fromTo("#br1-bar", { opacity: 0, scaleX: 0 }, { opacity: 1, scaleX: 1, transformOrigin: "left", duration: 0.5, ease: "expo.out" }, 16.9);
+      tl.fromTo("#br1-desc", { opacity: 0 }, { opacity: 1, duration: 0.3, ease: "power2.out" }, 17.3);
+      tl.to("#broll-1", { opacity: 0, duration: 0.2, ease: "none" }, 20.8);
+
+      /* ── B-ROLL 2: OFFICES (28s) ── */
+      tl.fromTo("#broll-2", { opacity: 0 }, { opacity: 1, duration: 0.2, ease: "none" }, 28);
+      tl.fromTo("#br2-eye", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.3, ease: "power3.out" }, 28.15);
+      tl.fromTo("#br2-title", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.4, ease: "back.out(1.2)" }, 28.3);
+      tl.fromTo(["#loc1", "#loc2", "#loc3"],
+        { opacity: 0, x: -40 },
+        { opacity: 1, x: 0, duration: 0.35, ease: "power3.out", stagger: 0.15 }, 28.65);
+      tl.to("#broll-2", { opacity: 0, duration: 0.2, ease: "none" }, 35.8);
+      tl.set("#broll-2", { opacity: 0 }, 36.0);
+
+      /* ── B-ROLL 3: 5,000 STAT (36s) ── */
+      tl.fromTo("#broll-3", { opacity: 0 }, { opacity: 1, duration: 0.2, ease: "none" }, 36);
+      tl.fromTo("#br3-eye", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.3, ease: "power3.out" }, 36.15);
+      tl.fromTo("#br3-pre", { opacity: 0 }, { opacity: 1, duration: 0.25, ease: "power2.out" }, 36.3);
+      tl.fromTo("#br3-num",
+        { opacity: 0, scale: 0.55, skewX: -4 },
+        { opacity: 1, scale: 1, skewX: -4, duration: 0.5, ease: "back.out(1.4)" }, 36.5);
+      tl.fromTo("#br3-sub", { opacity: 0, x: 40 }, { opacity: 1, x: 0, duration: 0.3, ease: "power3.out" }, 36.9);
+      tl.fromTo("#br3-bar", { opacity: 0, scaleX: 0 }, { opacity: 1, scaleX: 1, transformOrigin: "left", duration: 0.6, ease: "expo.out" }, 37.1);
+      tl.fromTo("#br3-desc", { opacity: 0 }, { opacity: 1, duration: 0.3, ease: "power2.out" }, 37.6);
+      /* Pulse the number */
+      tl.to("#br3-num", { scale: 1.04, skewX: -4, duration: 1.2, ease: "sine.inOut", repeat: 4, yoyo: true }, 38);
+      tl.to("#broll-3", { opacity: 0, duration: 0.25, ease: "none" }, 43.75);
+
+      /* ── CTA BAR (43.5s) ── */
+      tl.fromTo("#cta-bar", { opacity: 0, y: 180 },
+        { opacity: 1, y: 0, duration: 0.4, ease: "expo.out" }, 43.5);
+
+      /* ── CAPTIONS — all fade in/out ── */
+      const capData = [
+        { id: "#c1",  s: 0.34, d: 2.1  },
+        { id: "#c2",  s: 2.86, d: 2.0  },
+        { id: "#c3",  s: 5.02, d: 3.5  },
+        { id: "#c4",  s: 9.94, d: 3.5  },
+        { id: "#c5",  s: 13.8, d: 2.1  },
+        { id: "#c6",  s: 21.48, d: 3.7 },
+        { id: "#c7",  s: 25.8,  d: 2.6 },
+        { id: "#c8",  s: 36.6,  d: 3.3 },
+        { id: "#c9",  s: 40.96, d: 2.6 },
+        { id: "#c10", s: 43.94, d: 2.1 },
+      ];
+      capData.forEach(({ id, s, d }) => {
+        tl.fromTo(id, { opacity: 0, y: 22 },
+          { opacity: 1, y: 0, duration: 0.17, ease: "power2.out" }, s);
+        tl.to(id, { opacity: 0, y: -16, duration: 0.14, ease: "power2.in" }, s + d - 0.17);
+      });
+
+      tl.set({}, {}, 47);
       window.__timelines["main"] = tl;
     </script>
   </body>

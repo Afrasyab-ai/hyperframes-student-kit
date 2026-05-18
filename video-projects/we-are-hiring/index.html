@@ -3,216 +3,143 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=1080, height=1920" />
-    <title>We Are Hiring — 4,920 People</title>
+    <title>We Are Hiring — 4,920 People v2</title>
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Teko:wght@700&family=Anton&family=Poppins:wght@700;900&display=block"
-      rel="stylesheet"
-    />
+    <link href="https://fonts.googleapis.com/css2?family=Teko:wght@700&family=Anton&family=Poppins:wght@700;900&display=block" rel="stylesheet" />
     <style>
       * { margin: 0; padding: 0; box-sizing: border-box; }
-      html, body {
-        margin: 0;
-        width: 1080px;
-        height: 1920px;
-        overflow: hidden;
-        background: #000;
+      html, body { margin: 0; width: 1080px; height: 1920px; overflow: hidden; background: #060810; }
+
+      /* ── Ambient background ── */
+      #ambient-bg {
+        position: absolute; inset: 0; z-index: 0;
+        background:
+          radial-gradient(ellipse 80% 60% at 50% 110%, rgba(232,0,28,0.10) 0%, transparent 70%),
+          radial-gradient(ellipse 100% 100% at 50% 0%, rgba(10,14,30,1) 0%, rgba(6,8,16,1) 100%);
+      }
+      #ambient-bg::before {
+        content: ""; position: absolute; inset: 0;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+        opacity: 0.04; pointer-events: none;
+      }
+      #ambient-bg::after {
+        content: ""; position: absolute; inset: 0;
+        background-image:
+          linear-gradient(rgba(232,0,28,0.05) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(232,0,28,0.05) 1px, transparent 1px);
+        background-size: 108px 108px; pointer-events: none;
       }
 
-      /* ── Full-bleed source video ── */
-      #src-video {
-        position: absolute;
-        top: 0; left: 0;
+      /* ── Video wrapper ── */
+      #video-wrapper {
+        position: absolute; top: 0; left: 0;
         width: 1080px; height: 1920px;
-        object-fit: cover;
-        z-index: 0;
-        filter: contrast(1.06) saturate(1.1) brightness(1.02);
+        z-index: 1; transform-origin: 50% 0;
+      }
+      #src-video {
+        position: absolute; top: 0; left: 0;
+        width: 100%; height: 100%; object-fit: cover;
+        filter: contrast(1.07) saturate(1.12) brightness(1.01);
+      }
+      #video-wrapper::after {
+        content: ""; position: absolute; inset: 0; pointer-events: none;
+        background: linear-gradient(to top, rgba(6,8,16,0.6) 0%, transparent 30%);
       }
 
-      /* ── HOOK TEXT ── */
+      /* ── HOOK ── */
       #hook {
-        position: absolute;
-        top: 120px;
-        left: 0; right: 0;
-        text-align: center;
-        z-index: 10;
-        font-family: 'Teko', sans-serif;
-        font-weight: 700;
-        line-height: 0.88;
-        text-transform: uppercase;
-        transform: skewX(-4deg);
+        position: absolute; top: 80px; left: 0; right: 0;
+        text-align: center; z-index: 20;
+        font-family: 'Teko', sans-serif; font-weight: 700;
+        text-transform: uppercase; transform: skewX(-5deg);
         opacity: 0;
       }
-      #hook-line1 {
-        display: block;
-        font-size: 136px;
-        color: #ffffff;
-        text-shadow: 0 4px 0 rgba(0,0,0,0.9), 0 0 50px rgba(0,0,0,0.7);
-        letter-spacing: -2px;
-      }
-      #hook-line2 {
-        display: block;
-        font-size: 200px;
-        color: #e8001c;
-        text-shadow: 0 5px 0 rgba(0,0,0,0.9), 0 0 60px rgba(0,0,0,0.6);
-        letter-spacing: -6px;
-      }
-
-      /* ── WHITE CARD INSERT (opportunity card) ── */
-      #white-card {
-        position: absolute;
-        left: 56px; right: 56px;
-        top: 560px;
-        background: #ffffff;
-        border-radius: 24px;
-        padding: 52px 60px 58px;
-        z-index: 20;
-        opacity: 0;
-        box-shadow: 0 28px 90px rgba(0,0,0,0.6);
-      }
-      #card-eyebrow {
-        font-family: 'Anton', sans-serif;
-        font-size: 32px;
-        color: #e8001c;
-        letter-spacing: 5px;
-        text-transform: uppercase;
-        margin-bottom: 10px;
-      }
-      #card-headline {
-        font-family: 'Anton', sans-serif;
-        font-size: 72px;
-        color: #000000;
-        line-height: 1;
-        text-transform: uppercase;
-        margin-bottom: 42px;
-        letter-spacing: -1px;
-      }
-      #card-headline span { color: #e8001c; }
-      .card-item {
-        display: flex;
-        align-items: flex-start;
-        gap: 24px;
-        margin-bottom: 26px;
-        opacity: 0;
-      }
-      .card-item:last-child { margin-bottom: 0; }
-      .card-check {
-        flex-shrink: 0;
-        width: 44px; height: 44px;
-        background: #e8001c;
-        border-radius: 50%;
-        display: flex; align-items: center; justify-content: center;
-        font-family: 'Anton', sans-serif;
-        font-size: 22px;
-        color: #fff;
-        margin-top: 6px;
-      }
-      .card-text {
-        font-family: 'Poppins', sans-serif;
-        font-weight: 700;
-        font-size: 46px;
-        color: #000;
-        line-height: 1.1;
-        text-transform: uppercase;
-      }
-      .card-text strong { color: #e8001c; }
-
-      /* ── STAT NUMBER — 4,920 ── */
-      #stat-burst {
-        position: absolute;
-        left: 0; right: 0;
-        bottom: 490px;
-        text-align: center;
-        z-index: 15;
-        opacity: 0;
-      }
-      #stat-pre {
-        font-family: 'Anton', sans-serif;
-        font-size: 40px;
-        color: #ffffff;
-        letter-spacing: 8px;
-        text-transform: uppercase;
-        text-shadow: 0 3px 0 rgba(0,0,0,0.8);
-        display: block;
-        margin-bottom: 8px;
-      }
-      #stat-num {
-        font-family: 'Teko', sans-serif;
-        font-weight: 700;
-        font-size: 260px;
-        color: #ffffff;
-        line-height: 0.9;
-        letter-spacing: -8px;
-        text-shadow: 0 6px 0 rgba(0,0,0,0.85), 0 0 80px rgba(0,0,0,0.6);
-        display: block;
-      }
-      #stat-label {
-        font-family: 'Anton', sans-serif;
-        font-size: 50px;
-        color: #e8001c;
-        letter-spacing: 6px;
-        text-transform: uppercase;
-        text-shadow: 0 3px 0 rgba(0,0,0,0.8);
-        display: block;
-        margin-top: -8px;
-      }
-      #stat-bar {
-        width: 460px;
-        height: 8px;
-        background: linear-gradient(to right, #ffffff 65%, #e8001c 65%);
-        margin: 20px auto 0;
-        border-radius: 4px;
-      }
+      #hook-l1 { display: block; font-size: 120px; color: #fff; line-height: 0.88; letter-spacing: -2px;
+        text-shadow: 0 4px 0 rgba(0,0,0,0.9), 0 0 60px rgba(0,0,0,0.8); }
+      #hook-l2 { display: block; font-size: 210px; color: #e8001c; line-height: 0.88; letter-spacing: -8px;
+        text-shadow: 0 6px 0 rgba(0,0,0,0.9), 0 0 80px rgba(232,0,28,0.5); }
 
       /* ── CAPTIONS ── */
-      .caption {
-        position: absolute;
-        left: 56px; right: 56px;
-        bottom: 250px;
-        text-align: center;
-        font-family: 'Poppins', sans-serif;
-        font-weight: 900;
-        font-size: 60px;
-        line-height: 1.15;
-        color: #ffffff;
+      .cap {
+        position: absolute; left: 50px; right: 50px; bottom: 220px;
+        text-align: center; z-index: 60;
+        font-family: 'Poppins', sans-serif; font-weight: 900;
+        font-size: 58px; line-height: 1.15; color: #fff;
         text-transform: uppercase;
-        text-shadow:
-          3px 3px 0 #000,
-          -3px -3px 0 #000,
-          3px -3px 0 #000,
-          -3px 3px 0 #000,
-          0 6px 24px rgba(0,0,0,0.95);
+        text-shadow: 3px 3px 0 #000, -3px -3px 0 #000, 3px -3px 0 #000, -3px 3px 0 #000,
+                     0 0 30px rgba(0,0,0,0.95);
         opacity: 0;
-        z-index: 30;
       }
-      .caption .hot { color: #e8001c; }
+      .cap .hot { color: #e8001c; }
 
-      /* ── BOTTOM CTA BAR ── */
+      /* ── FULL-SCREEN B-ROLL OVERLAYS ── */
+      .broll {
+        position: absolute; inset: 0; z-index: 40; opacity: 0;
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+      }
+      .broll-bg {
+        position: absolute; inset: 0;
+        background: linear-gradient(160deg, #080c1a 0%, #050810 50%, #0d0508 100%);
+      }
+      .broll-stripe {
+        position: absolute; left: 0; top: 0; width: 8px; height: 100%;
+        background: linear-gradient(to bottom, transparent, #e8001c 30%, #e8001c 70%, transparent);
+      }
+      .broll-content { position: relative; z-index: 2; width: 100%; padding: 0 70px; text-align: center; }
+      .broll-eyebrow {
+        font-family: 'Anton', sans-serif; font-size: 30px;
+        color: #e8001c; letter-spacing: 8px; text-transform: uppercase; margin-bottom: 20px; opacity: 0;
+      }
+
+      /* ── University tour B-roll ── */
+      .uni-item {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 28px 40px; margin-bottom: 20px;
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-left: 5px solid #e8001c; border-radius: 16px;
+        opacity: 0; transform: translateX(-50px);
+      }
+      .uni-name { font-family: 'Anton', sans-serif; font-size: 44px; color: #fff; text-transform: uppercase; text-align: left; }
+      .uni-date { font-family: 'Teko', sans-serif; font-weight: 700; font-size: 60px; color: #e8001c; }
+
+      /* ── Opportunity card B-roll ── */
+      .opp-item {
+        display: flex; align-items: center; gap: 26px;
+        padding: 26px 36px; margin-bottom: 22px;
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.09);
+        border-radius: 16px;
+        opacity: 0; transform: translateY(40px);
+      }
+      .opp-icon { font-size: 48px; flex-shrink: 0; }
+      .opp-label { font-family: 'Anton', sans-serif; font-size: 44px; color: #fff; text-transform: uppercase; text-align: left; }
+      .opp-label span { color: #e8001c; }
+
+      /* ── Stat B-roll ── */
+      .stat-num {
+        font-family: 'Teko', sans-serif; font-weight: 700;
+        font-size: 290px; color: #fff; line-height: 0.88; letter-spacing: -12px;
+        text-shadow: 0 8px 0 rgba(0,0,0,0.6);
+        opacity: 0; transform: skewX(-4deg);
+      }
+      .stat-label {
+        font-family: 'Anton', sans-serif; font-size: 52px; color: #e8001c;
+        letter-spacing: 6px; text-transform: uppercase; margin-top: -8px; opacity: 0;
+      }
+      .stat-bar {
+        width: 520px; height: 7px; margin: 28px auto 0;
+        background: linear-gradient(to right, #ffffff 65%, #e8001c 65%);
+        border-radius: 4px; opacity: 0;
+      }
+
+      /* ── CTA bar ── */
       #cta-bar {
-        position: absolute;
-        left: 0; right: 0;
-        bottom: 0;
-        height: 190px;
-        background: #e8001c;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 25;
-        opacity: 0;
+        position: absolute; left: 0; right: 0; bottom: 0; height: 180px;
+        background: #e8001c; z-index: 50; opacity: 0;
+        display: flex; align-items: center; justify-content: center;
       }
-      #cta-text {
-        font-family: 'Anton', sans-serif;
-        font-size: 58px;
-        color: #ffffff;
-        letter-spacing: 5px;
-        text-transform: uppercase;
-      }
-      #cta-arrow {
-        font-size: 68px;
-        color: #ffffff;
-        margin-left: 20px;
-        display: inline-block;
-      }
+      #cta-text { font-family: 'Anton', sans-serif; font-size: 58px; color: #fff; letter-spacing: 5px; text-transform: uppercase; }
     </style>
   </head>
   <body>
@@ -225,103 +152,128 @@
       data-height="1920"
       style="position:relative;width:1080px;height:1920px;overflow:hidden;"
     >
-    <!-- Track 0: source video -->
-    <video
-      id="src-video"
-      data-start="0"
-      data-duration="83.2"
-      data-track-index="0"
-      src="assets/source.mp4"
-      muted
-      playsinline
-    ></video>
+      <div id="ambient-bg"></div>
 
-    <!-- Track 1: audio -->
-    <audio
-      id="src-audio"
-      data-start="0"
-      data-duration="83.2"
-      data-track-index="1"
-      data-volume="1"
-      src="assets/source.mp4"
-    ></audio>
-
-    <!-- Track 2: Hook text (0–4.8s) -->
-    <div
-      id="hook"
-      class="clip"
-      data-start="0"
-      data-duration="4.8"
-      data-track-index="2"
-    >
-      <span id="hook-line1">WE ARE</span>
-      <span id="hook-line2">HIRING</span>
-    </div>
-
-    <!-- Track 3: White card (22–38s) — opportunity details -->
-    <div
-      id="white-card"
-      class="clip"
-      data-start="22"
-      data-duration="16"
-      data-track-index="3"
-    >
-      <div id="card-eyebrow">THE OPPORTUNITY</div>
-      <div id="card-headline">WORK <span>YOUR WAY</span></div>
-      <div class="card-item" id="ci1">
-        <div class="card-check">✓</div>
-        <div class="card-text"><strong>WORK FROM HOME</strong></div>
+      <div id="video-wrapper">
+        <video
+          id="src-video"
+          data-start="0"
+          data-duration="83.2"
+          data-track-index="0"
+          src="assets/source.mp4"
+          muted playsinline
+        ></video>
       </div>
-      <div class="card-item" id="ci2">
-        <div class="card-check">✓</div>
-        <div class="card-text">LEGIT BUSINESS</div>
-      </div>
-      <div class="card-item" id="ci3">
-        <div class="card-check">✓</div>
-        <div class="card-text">EMPOWER YOUR HOME</div>
-      </div>
-      <div class="card-item" id="ci4">
-        <div class="card-check">✓</div>
-        <div class="card-text"><strong>4,920 POSITIONS</strong></div>
-      </div>
-    </div>
 
-    <!-- Track 4: 4,920 stat burst (72.0–76.5s) — synced to "we are hiring 4,920" -->
-    <div
-      id="stat-burst"
-      class="clip"
-      data-start="72.0"
-      data-duration="4.5"
-      data-track-index="4"
-    >
-      <span id="stat-pre">HIRING</span>
-      <span id="stat-num">4,920</span>
-      <span id="stat-label">PEOPLE THIS YEAR</span>
-      <div id="stat-bar"></div>
-    </div>
+      <audio id="src-audio" data-start="0" data-duration="83.2" data-track-index="1" data-volume="1" src="assets/source.mp4"></audio>
 
-    <!-- Track 5: Captions — English words from transcript -->
-    <div id="cap-1"  class="caption clip" data-start="60.06" data-duration="1.9"  data-track-index="5">IT IS A <span class="hot">LEGIT</span> BUSINESS</div>
-    <div id="cap-2"  class="caption clip" data-start="62.02" data-duration="2.2"  data-track-index="5"><span class="hot">OPPORTUNITY</span><br>FOR ALL STUDENTS</div>
-    <div id="cap-3"  class="caption clip" data-start="64.28" data-duration="1.6"  data-track-index="5">WHO WANT TO MAKE<br><span class="hot">SERIOUS INCOME</span></div>
-    <div id="cap-4"  class="caption clip" data-start="65.96" data-duration="2.7"  data-track-index="5">FROM THE<br><span class="hot">COMFORT OF HOME</span></div>
-    <div id="cap-5"  class="caption clip" data-start="70.84" data-duration="1.8"  data-track-index="5">WE ARE<br><span class="hot">HIRING</span></div>
-    <div id="cap-6"  class="caption clip" data-start="72.76" data-duration="3.7"  data-track-index="5"><span class="hot">4,920</span> PEOPLE<br>THIS YEAR</div>
-    <div id="cap-7"  class="caption clip" data-start="76.52" data-duration="1.74" data-track-index="5">BECOME A PART<br>OF THIS <span class="hot">MISSION</span></div>
-    <div id="cap-8"  class="caption clip" data-start="78.34" data-duration="2.0"  data-track-index="5">LET'S <span class="hot">EMPOWER</span><br>AS MANY HOMES</div>
-    <div id="cap-9"  class="caption clip" data-start="80.44" data-duration="1.8"  data-track-index="5">AS <span class="hot">POSSIBLE</span></div>
+      <!-- Track 3: Hook (0–3.5s) -->
+      <div id="hook" class="clip" data-start="0" data-duration="3.5" data-track-index="3">
+        <span id="hook-l1">WE ARE</span>
+        <span id="hook-l2">HIRING</span>
+      </div>
 
-    <!-- Track 6: CTA bottom bar (79.5–83.2s) -->
-    <div
-      id="cta-bar"
-      class="clip"
-      data-start="79.5"
-      data-duration="3.7"
-      data-track-index="6"
-    >
-      <span id="cta-text">JOIN THE MISSION</span>
-      <span id="cta-arrow">→</span>
-    </div>
+      <!-- Track 4: B-roll 1 — University Tour Dates (3.5–17s) -->
+      <div id="broll-1" class="broll clip" data-start="3.5" data-duration="13.5" data-track-index="4">
+        <div class="broll-bg"></div>
+        <div class="broll-stripe"></div>
+        <div class="broll-content">
+          <div class="broll-eyebrow" id="br1-eye">COMING TO YOUR CAMPUS</div>
+          <div style="font-family:'Teko',sans-serif;font-weight:700;font-size:110px;color:#fff;line-height:0.9;text-transform:uppercase;letter-spacing:-3px;margin-bottom:44px;text-shadow:0 5px 0 rgba(0,0,0,0.6);opacity:0;" id="br1-title">UNIVERSITY<br><span style="color:#e8001c;">TOUR 2025</span></div>
+          <div id="br1-unis">
+            <div class="uni-item" id="u1">
+              <div class="uni-name">BARRIER UNIVERSITY</div>
+              <div class="uni-date">19TH</div>
+            </div>
+            <div class="uni-item" id="u2">
+              <div class="uni-name">ZABIST</div>
+              <div class="uni-date">20TH MAY</div>
+            </div>
+            <div class="uni-item" id="u3">
+              <div class="uni-name">AIR UNIVERSITY</div>
+              <div class="uni-date">21ST</div>
+            </div>
+            <div class="uni-item" id="u4">
+              <div class="uni-name">ISLAMIC UNIVERSITY</div>
+              <div class="uni-date">18TH JUN</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Track 5: B-roll 2 — The Opportunity (28–44s) -->
+      <div id="broll-2" class="broll clip" data-start="28" data-duration="16" data-track-index="5">
+        <div class="broll-bg"></div>
+        <div class="broll-stripe"></div>
+        <div class="broll-content">
+          <div class="broll-eyebrow" id="br2-eye">THE OPPORTUNITY</div>
+          <div style="font-family:'Teko',sans-serif;font-weight:700;font-size:130px;color:#fff;line-height:0.9;text-transform:uppercase;letter-spacing:-4px;margin-bottom:48px;text-shadow:0 5px 0 rgba(0,0,0,0.6);opacity:0;transform:skewX(-4deg);" id="br2-title">WORK YOUR<br><span style="color:#e8001c;">WAY</span></div>
+          <div id="br2-items">
+            <div class="opp-item" id="op1">
+              <div class="opp-icon">🏠</div>
+              <div class="opp-label"><span>WORK</span> FROM HOME</div>
+            </div>
+            <div class="opp-item" id="op2">
+              <div class="opp-icon">💰</div>
+              <div class="opp-label"><span>SERIOUS</span> INCOME</div>
+            </div>
+            <div class="opp-item" id="op3">
+              <div class="opp-icon">📋</div>
+              <div class="opp-label"><span>LEGIT</span> BUSINESS</div>
+            </div>
+            <div class="opp-item" id="op4">
+              <div class="opp-icon">🎯</div>
+              <div class="opp-label">EMPOWER <span>YOUR HOME</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Track 6: B-roll 3 — 4,920 STAT (72–77s) -->
+      <div id="broll-3" class="broll clip" data-start="72" data-duration="5" data-track-index="6">
+        <div class="broll-bg"></div>
+        <div class="broll-stripe"></div>
+        <div class="broll-content">
+          <div class="broll-eyebrow" id="br3-eye">WE ARE HIRING</div>
+          <div class="stat-num" id="br3-num">4,920</div>
+          <div class="stat-label" id="br3-sub">PEOPLE THIS YEAR</div>
+          <div class="stat-bar" id="br3-bar"></div>
+          <div style="margin-top:48px;font-family:'Poppins',sans-serif;font-weight:700;font-size:36px;color:rgba(255,255,255,0.55);text-transform:uppercase;opacity:0;" id="br3-desc">Become part of this mission</div>
+        </div>
+      </div>
+
+      <!-- Track 7: CTA (79–83.2s) -->
+      <div id="cta-bar" class="clip" data-start="79" data-duration="4.2" data-track-index="7">
+        <span id="cta-text">JOIN THE MISSION →</span>
+      </div>
+
+      <!-- Track 2: Captions — English (from Urdu→English translation + original transcript) -->
+      <!-- 0–3.5s: Hook phase captions -->
+      <div id="c1"  class="cap clip" data-start="0.0"  data-duration="1.3" data-track-index="2">HEY STUDENTS OF <span class="hot">RAWALPINDI</span></div>
+      <div id="c2"  class="cap clip" data-start="1.34" data-duration="2.1" data-track-index="2">AND <span class="hot">ISLAMABAD</span></div>
+
+      <!-- 17–28s: Captions after university B-roll (Urdu pitch section) -->
+      <div id="c3"  class="cap clip" data-start="17.0" data-duration="3.5" data-track-index="2">WE WILL TRAIN YOU<br>AND GIVE YOU <span class="hot">JOB PLACEMENT</span></div>
+      <div id="c4"  class="cap clip" data-start="20.5" data-duration="3.5" data-track-index="2">MAKE <span class="hot">SERIOUS INCOME</span><br>FROM HOME</div>
+      <div id="c5"  class="cap clip" data-start="24.0" data-duration="3.8" data-track-index="2">IT IS A <span class="hot">LEGIT</span><br>BUSINESS OPPORTUNITY</div>
+
+      <!-- 44–60s: After opportunity B-roll (Urdu section continues) -->
+      <div id="c6"  class="cap clip" data-start="44.0" data-duration="3.5" data-track-index="2">JOIN OUR OFFICES IN<br><span class="hot">ISLAMABAD</span> OR RAWALPINDI</div>
+      <div id="c7"  class="cap clip" data-start="47.5" data-duration="3.5" data-track-index="2">OR JOIN US <span class="hot">REMOTELY</span><br>FROM ANYWHERE</div>
+      <div id="c8"  class="cap clip" data-start="51.0" data-duration="3.5" data-track-index="2">WE EMPOWER <span class="hot">HOMES</span><br>ACROSS PAKISTAN</div>
+      <div id="c9"  class="cap clip" data-start="54.5" data-duration="3.5" data-track-index="2">THIS IS A <span class="hot">REAL</span><br>OPPORTUNITY FOR YOU</div>
+      <div id="c10" class="cap clip" data-start="58.0" data-duration="1.9" data-track-index="2">IT IS A <span class="hot">LEGIT</span> BUSINESS<br>OPPORTUNITY FOR ALL</div>
+
+      <!-- 60–72s: Original English words from transcript -->
+      <div id="c11" class="cap clip" data-start="60.06" data-duration="1.88" data-track-index="2">FOR STUDENTS WHO WANT<br><span class="hot">SERIOUS INCOME</span></div>
+      <div id="c12" class="cap clip" data-start="64.32" data-duration="1.56" data-track-index="2">FROM THE <span class="hot">COMFORT</span><br>OF THEIR HOME</div>
+      <div id="c13" class="cap clip" data-start="65.96" data-duration="2.62" data-track-index="2">SO IF YOU WANT<br>TO <span class="hot">GET ON SET</span></div>
+      <div id="c14" class="cap clip" data-start="70.84" data-duration="1.1" data-track-index="2">WE ARE <span class="hot">HIRING</span></div>
+
+      <!-- 77–83s: CTA captions -->
+      <div id="c15" class="cap clip" data-start="77.0" data-duration="2.0" data-track-index="2">BECOME PART<br>OF THIS <span class="hot">MISSION</span></div>
+      <div id="c16" class="cap clip" data-start="79.0" data-duration="2.0" data-track-index="2">LET'S <span class="hot">EMPOWER</span><br>AS MANY HOMES</div>
+      <div id="c17" class="cap clip" data-start="81.0" data-duration="2.0" data-track-index="2">AS <span class="hot">POSSIBLE</span><br>SEE YOU!</div>
 
     </div><!-- end #root -->
 
@@ -329,52 +281,89 @@
       window.__timelines = window.__timelines || {};
       const tl = gsap.timeline({ paused: true });
 
-      /* ── HOOK TEXT (0–4.8s) ── */
-      tl.fromTo("#hook", { opacity: 0, y: -50, scale: 0.82 },
-        { opacity: 1, y: 0, scale: 1, duration: 0.38, ease: "back.out(1.5)" }, 0.08);
-      tl.to("#hook", { opacity: 0, y: -35, duration: 0.28, ease: "power2.in" }, 4.4);
+      /* ── FACE-MODE CHOREOGRAPHY ── */
+      const TEXT_TOP  = { y: 260, scale: 0.92, duration: 0.4, ease: "expo.inOut" };
+      const FULLSCREEN = { y: 0, scale: 1.0, duration: 0.4, ease: "expo.inOut" };
 
-      /* ── WHITE CARD (22s) ── */
-      tl.fromTo("#white-card", { opacity: 0, y: 70 },
-        { opacity: 1, y: 0, duration: 0.42, ease: "expo.out" }, 22);
-      tl.fromTo(["#ci1","#ci2","#ci3","#ci4"], { opacity: 0, x: -32 },
-        { opacity: 1, x: 0, duration: 0.3, ease: "power3.out", stagger: 0.13 }, 22.4);
-      tl.to("#white-card", { opacity: 0, y: -50, duration: 0.32, ease: "power2.in" }, 37.7);
+      tl.set("#video-wrapper", { y: 260, scale: 0.92 }, 0); // TEXT_TOP for hook
+      tl.to("#video-wrapper", { ...FULLSCREEN }, 3.3);       // fullscreen when B-roll 1 starts
+      tl.to("#video-wrapper", { ...FULLSCREEN }, 17);        // keep fullscreen after B-roll 1
+      tl.to("#video-wrapper", { ...FULLSCREEN }, 44);        // keep fullscreen after B-roll 2
+      tl.to("#video-wrapper", { ...FULLSCREEN }, 77);        // keep fullscreen for CTA
 
-      /* ── STAT BURST (72s) ── */
-      tl.fromTo("#stat-burst", { opacity: 0, scale: 0.65 },
-        { opacity: 1, scale: 1, duration: 0.42, ease: "back.out(1.8)" }, 72.0);
-      tl.to("#stat-burst", { opacity: 0, scale: 1.1, duration: 0.28, ease: "power2.in" }, 76.2);
-      tl.set("#stat-burst", { opacity: 0 }, 76.52);
+      /* ── Ken Burns ── */
+      tl.fromTo("#src-video", { scale: 1 }, { scale: 1.05, duration: 83.2, ease: "none" }, 0);
+
+      /* ── HOOK (0s) ── */
+      tl.fromTo("#hook",
+        { opacity: 0, y: -70, scale: 0.78 },
+        { opacity: 1, y: 0, scale: 1, duration: 0.42, ease: "back.out(1.5)" }, 0.1);
+      tl.to("#hook", { opacity: 0, y: -45, duration: 0.28, ease: "power2.in" }, 3.1);
+
+      /* ── B-ROLL 1: University Tour (3.5–17s) ── */
+      tl.fromTo("#broll-1", { opacity: 0 }, { opacity: 1, duration: 0.22, ease: "none" }, 3.5);
+      tl.fromTo("#br1-eye", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.3, ease: "power3.out" }, 3.65);
+      tl.fromTo("#br1-title", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.4, ease: "back.out(1.2)" }, 3.85);
+      tl.fromTo(["#u1","#u2","#u3","#u4"],
+        { opacity: 0, x: -50 },
+        { opacity: 1, x: 0, duration: 0.35, ease: "power3.out", stagger: 0.16 }, 4.2);
+      tl.to("#broll-1", { opacity: 0, duration: 0.22, ease: "none" }, 16.78);
+      tl.set("#broll-1", { opacity: 0 }, 17.0);
+
+      /* ── B-ROLL 2: The Opportunity (28–44s) ── */
+      tl.fromTo("#broll-2", { opacity: 0 }, { opacity: 1, duration: 0.22, ease: "none" }, 28);
+      tl.fromTo("#br2-eye", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.3, ease: "power3.out" }, 28.15);
+      tl.fromTo("#br2-title", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.42, ease: "back.out(1.2)" }, 28.35);
+      tl.fromTo(["#op1","#op2","#op3","#op4"],
+        { opacity: 0, y: 40 },
+        { opacity: 1, y: 0, duration: 0.35, ease: "power3.out", stagger: 0.14 }, 28.7);
+      tl.to("#broll-2", { opacity: 0, duration: 0.22, ease: "none" }, 43.78);
+      tl.set("#broll-2", { opacity: 0 }, 44.0);
+
+      /* ── B-ROLL 3: 4,920 Stat (72–77s) ── */
+      tl.fromTo("#broll-3", { opacity: 0 }, { opacity: 1, duration: 0.22, ease: "none" }, 72);
+      tl.fromTo("#br3-eye", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.3, ease: "power3.out" }, 72.15);
+      tl.fromTo("#br3-num",
+        { opacity: 0, scale: 0.55, skewX: -4 },
+        { opacity: 1, scale: 1, skewX: -4, duration: 0.5, ease: "back.out(1.5)" }, 72.38);
+      tl.fromTo("#br3-sub", { opacity: 0, x: 50 }, { opacity: 1, x: 0, duration: 0.32, ease: "power3.out" }, 72.8);
+      tl.fromTo("#br3-bar", { opacity: 0, scaleX: 0 }, { opacity: 1, scaleX: 1, transformOrigin: "left", duration: 0.55, ease: "expo.out" }, 73.0);
+      tl.fromTo("#br3-desc", { opacity: 0 }, { opacity: 1, duration: 0.3, ease: "power2.out" }, 73.4);
+      tl.to("#br3-num", { scale: 1.05, skewX: -4, duration: 0.9, ease: "sine.inOut", repeat: 3, yoyo: true }, 73.8);
+      tl.to("#broll-3", { opacity: 0, duration: 0.22, ease: "none" }, 76.78);
+      tl.set("#broll-3", { opacity: 0 }, 77.0);
+
+      /* ── CTA BAR (79s) ── */
+      tl.fromTo("#cta-bar", { opacity: 0, y: 180 },
+        { opacity: 1, y: 0, duration: 0.38, ease: "expo.out" }, 79);
 
       /* ── CAPTIONS ── */
       const caps = [
-        { id: "#cap-1",  s: 60.06, d: 1.9  },
-        { id: "#cap-2",  s: 62.02, d: 2.2  },
-        { id: "#cap-3",  s: 64.28, d: 1.6  },
-        { id: "#cap-4",  s: 65.96, d: 2.7  },
-        { id: "#cap-5",  s: 70.84, d: 1.8  },
-        { id: "#cap-6",  s: 72.76, d: 3.7  },
-        { id: "#cap-7",  s: 76.52, d: 1.74 },
-        { id: "#cap-8",  s: 78.34, d: 2.0  },
-        { id: "#cap-9",  s: 80.44, d: 1.8  },
+        { id: "#c1",  s: 0.0,   d: 1.3  },
+        { id: "#c2",  s: 1.34,  d: 2.1  },
+        { id: "#c3",  s: 17.0,  d: 3.5  },
+        { id: "#c4",  s: 20.5,  d: 3.5  },
+        { id: "#c5",  s: 24.0,  d: 3.8  },
+        { id: "#c6",  s: 44.0,  d: 3.5  },
+        { id: "#c7",  s: 47.5,  d: 3.5  },
+        { id: "#c8",  s: 51.0,  d: 3.5  },
+        { id: "#c9",  s: 54.5,  d: 3.5  },
+        { id: "#c10", s: 58.0, d: 1.9 },
+        { id: "#c11", s: 60.06, d: 1.88 },
+        { id: "#c12", s: 64.32, d: 1.56 },
+        { id: "#c13", s: 65.96, d: 2.62 },
+        { id: "#c14", s: 70.84, d: 1.1  },
+        { id: "#c15", s: 77.0,  d: 2.0  },
+        { id: "#c16", s: 79.0,  d: 2.0  },
+        { id: "#c17", s: 81.0,  d: 2.0  },
       ];
       caps.forEach(({ id, s, d }) => {
-        tl.fromTo(id, { opacity: 0, y: 20 },
-          { opacity: 1, y: 0, duration: 0.18, ease: "power2.out" }, s);
-        tl.to(id, { opacity: 0, y: -16, duration: 0.15, ease: "power2.in" }, s + d - 0.18);
+        tl.fromTo(id, { opacity: 0, y: 22 },
+          { opacity: 1, y: 0, duration: 0.17, ease: "power2.out" }, s);
+        tl.to(id, { opacity: 0, y: -16, duration: 0.14, ease: "power2.in" }, s + d - 0.17);
       });
 
-      /* ── CTA BAR (79.5s) ── */
-      tl.fromTo("#cta-bar", { opacity: 0, y: 190 },
-        { opacity: 1, y: 0, duration: 0.38, ease: "expo.out" }, 79.5);
-
-      /* ── Ken Burns subtle zoom ── */
-      tl.fromTo("#src-video", { scale: 1 }, { scale: 1.05, duration: 83.2, ease: "none" }, 0);
-
-      /* Pad to full duration */
       tl.set({}, {}, 83.2);
-
       window.__timelines["main"] = tl;
     </script>
   </body>
